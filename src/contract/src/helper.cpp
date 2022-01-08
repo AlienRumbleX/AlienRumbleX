@@ -8,35 +8,36 @@ alienrumblex::check_user_registered(const name &user) {
     return accounts.require_find(user.value, "user is not registered");
 }
 
-alienrumblex::weapons_table::const_iterator
-alienrumblex::check_user_weapon(const name &user, const uint64_t &asset_id) {
-    // check if the weapon is staked
-    auto weapon = get_weapons().require_find(asset_id, "weapon is not staked");
+void alienrumblex::check_user_weapon(const name &user, const uint64_t &asset_id) {
+    // get the user's assets
+    auto assets = atomicassets::get_assets(user);
 
     // check if the weapon belongs to the user
-    check(weapon->owner == user,
-          string("user does not own asset " + to_string(asset_id)).c_str());
+    auto weapon = assets.require_find(
+        asset_id, string("user doesn't own asset: " + to_string(asset_id)).c_str());
 
-    return weapon;
-}
-
-alienrumblex::crews_table::const_iterator
-alienrumblex::check_user_crew(const name &user, const uint64_t &asset_id) {
-    // check if the minion is staked
-    auto minion = get_crews().require_find(asset_id, "minion is not staked");
+    // get the weapons configs
+    auto weapon_confs = get_weapons_conf();
 
     // check if the minion belongs to the user
-    check(minion->owner == user,
-          string("user does not own asset " + to_string(asset_id)).c_str());
-
-    return minion;
+    weapon_confs.require_find(weapon->template_id,
+                              string("asset " + to_string(asset_id) + " is not valid").c_str());
 }
 
-float alienrumblex::map_value(const uint64_t &value, const float &from_start,
-                              const float &from_end, const float &to_start,
-                              const float &to_end) {
-    auto ratio = (to_end - to_start) / (from_end - from_start);
-    return to_start + ratio * (value - from_start);
+void alienrumblex::check_user_crew(const name &user, const uint64_t &asset_id) {
+    // get the user's assets
+    auto assets = atomicassets::get_assets(user);
+
+    // check if the minion belongs to the user
+    auto minion = assets.require_find(
+        asset_id, string("user doesn't own asset: " + to_string(asset_id)).c_str());
+
+    // get the crew configs
+    auto crew_confs = get_crews_conf();
+
+    // check if the minion belongs to the user
+    crew_confs.require_find(minion->template_id,
+                            string("asset " + to_string(asset_id) + " is not valid").c_str());
 }
 
 uint64_t alienrumblex::tx_rand(const uint64_t &upper_limit) {
@@ -61,14 +62,6 @@ uint64_t alienrumblex::tx_rand(const uint64_t &upper_limit) {
 // getter functions
 alienrumblex::accounts_table alienrumblex::get_accounts() {
     return accounts_table(get_self(), get_self().value);
-}
-
-alienrumblex::weapons_table alienrumblex::get_weapons() {
-    return weapons_table(get_self(), get_self().value);
-}
-
-alienrumblex::crews_table alienrumblex::get_crews() {
-    return crews_table(get_self(), get_self().value);
 }
 
 alienrumblex::weapons_conf_table alienrumblex::get_weapons_conf() {

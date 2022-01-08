@@ -124,23 +124,9 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
     // check if the user has enough balance to enter
     check(account->balance >= arena->cost, "insufficient balance to enter this arena");
 
-    // get the user's assets
-    auto assets = atomicassets::get_assets(user);
-
-    // check if user owns the specified assets
-    assets.require_find(minion_id,
-                        string("user doesn't own asset: " + to_string(minion_id)).c_str());
-    assets.require_find(weapon_id,
-                        string("user doesn't own asset: " + to_string(weapon_id)).c_str());
-
-    auto crews = get_crews();
-    auto weapons = get_weapons();
-
-    // check if user staked the specified assets
-    crews.require_find(minion_id,
-                       string("minion: " + to_string(minion_id) + " must be staked").c_str());
-    weapons.require_find(weapon_id,
-                         string("weapon: " + to_string(weapon_id) + " must be staked").c_str());
+    // check if user provided assets are valid
+    check_user_crew(user, minion_id);
+    check_user_weapon(user, weapon_id);
 
     auto queues = get_queues();
 
