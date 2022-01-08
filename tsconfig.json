@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"target": "ES2018",
+		"lib": ["DOM"],
+		"module": "CommonJS",
+		"jsx": "react",
+		"strict": false,
+		"rootDir": "./src",
+		"declaration": true,
+		"outDir": "./dist",
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true
+	},
+	"include": ["src"],
+	"exclude": ["**/node_modules/**", "./webpack.config.ts"]
+}
