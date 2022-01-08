@@ -52,12 +52,14 @@ ACTION alienrumblex::stakeweapons(const name &user, const vector<uint64_t> &asse
         if (weapon == weapons.end()) {
             weapons.emplace(user, [&](auto &row) {
                 row.asset_id = asset_id;
+                row.template_id = asset->template_id;
                 row.owner = user;
             });
         } else {
             // else: modify existing row
             weapons.modify(weapon, same_payer, [&](auto &row) {
                 row.asset_id = asset_id;
+                row.template_id = asset->template_id;
                 row.owner = user;
             });
         }
@@ -92,12 +94,14 @@ ACTION alienrumblex::stakecrews(const name &user, const vector<uint64_t> &asset_
         if (minion == crews.end()) {
             crews.emplace(user, [&](auto &row) {
                 row.asset_id = asset_id;
+                row.template_id = asset->template_id;
                 row.owner = user;
             });
         } else {
             // else: modify existing row
             crews.modify(minion, same_payer, [&](auto &row) {
                 row.asset_id = asset_id;
+                row.template_id = asset->template_id;
                 row.owner = user;
             });
         }

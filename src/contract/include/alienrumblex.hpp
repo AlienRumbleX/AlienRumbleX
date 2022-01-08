@@ -62,6 +62,7 @@ CONTRACT alienrumblex : public contract {
     TABLE weapon_entity {
         uint64_t asset_id;
         name owner;
+        uint64_t template_id;
 
         auto primary_key() const {
             return asset_id;
@@ -76,6 +77,7 @@ CONTRACT alienrumblex : public contract {
     TABLE crew_entity {
         uint64_t asset_id;
         name owner;
+        uint64_t template_id;
 
         auto primary_key() const {
             return asset_id;
