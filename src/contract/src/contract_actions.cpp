@@ -231,8 +231,10 @@ ACTION alienrumblex::logwinner(const uint64_t &battle_id, const name &winner) {
     auto percentage = (100 - arena->fee) / 100.0f;
     auto prize = asset((uint64_t)(arena->cost.amount * warrior_count * percentage), TLM_SYMBOL);
 
-    // send the prize
-    action(permission_level{get_self(), name("active")}, TLM_CONTRACT, name("transfer"),
-           make_tuple(get_self(), winner, prize, string("AlienRumbleX prize")))
-        .send();
+    auto account = check_user_registered(winner);
+
+    get_accounts().modify(accounts_table,same_payer, [&](auto &row) {
+            row.balance = account->balance + prize;
+            row.win_count = account->win_count + 1;
+        });
 }

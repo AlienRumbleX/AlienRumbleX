@@ -39,6 +39,8 @@ CONTRACT alienrumblex : public contract {
     TABLE account_entity {
         name account;
         asset balance;
+        uint64_t battle_count;
+        uint64_t win_count;
 
         auto primary_key() const {
             return account.value;

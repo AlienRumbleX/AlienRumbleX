@@ -20,94 +20,21 @@ ACTION alienrumblex::regnewuser(const name &user) {
     accounts.emplace(user, [&](auto &row) {
         row.account = user;
         row.balance = asset(0, TLM_SYMBOL);
+        row.battle_count = 0;
+        row.win_count = 0;
     });
 }
 
-ACTION alienrumblex::stakeweapons(const name &user, const vector<uint64_t> &asset_ids) {
-    // check for caller auth
-    require_auth(user);
+/*
+    Enter the user into the queue of the selected arena
 
-    // check if user is registered & find the user's account
-    auto account = check_user_registered(user);
+    @param {name} user - the name of the account
+    @param {name} arena_name - the name of the selected arena
+    @param {uint64_t} minion_id - the asset_id of the chosen minion
+    @param {uint64_t} weapon_id - the asset_id of the chosen weapon
 
-    // get the user's assets
-    auto assets = atomicassets::get_assets(user);
-
-    // get the user's weapons
-    auto weapons = get_weapons();
-
-    for (const uint64_t &asset_id : asset_ids) {
-        // find the asset data, to get the template id from it
-        auto asset = assets.require_find(
-            asset_id, string("user doesn't own asset: " + to_string(asset_id)).c_str());
-
-        // check if the asset's template is a valid weapon
-        get_weapons_conf().require_find(
-            asset->template_id,
-            string("asset: " + to_string(asset->asset_id) + " is not a valid asset").c_str());
-
-        auto weapon = weapons.find(asset_id);
-
-        // if there's no config for this template
-        if (weapon == weapons.end()) {
-            weapons.emplace(user, [&](auto &row) {
-                row.asset_id = asset_id;
-                row.template_id = asset->template_id;
-                row.owner = user;
-            });
-        } else {
-            // else: modify existing row
-            weapons.modify(weapon, same_payer, [&](auto &row) {
-                row.asset_id = asset_id;
-                row.template_id = asset->template_id;
-                row.owner = user;
-            });
-        }
-    }
-}
-
-ACTION alienrumblex::stakecrews(const name &user, const vector<uint64_t> &asset_ids) {
-    // check for caller auth
-    require_auth(user);
-
-    // check if user is registered & find the user's account
-    auto account = check_user_registered(user);
-
-    // get the user's assets
-    auto assets = atomicassets::get_assets(user);
-
-    auto crews = get_crews();
-
-    for (const uint64_t &asset_id : asset_ids) {
-        // find the asset data, to get the template id from it
-        auto asset = assets.require_find(
-            asset_id, string("user doesn't own asset: " + to_string(asset_id)).c_str());
-
-        // check if the asset's template is a valid minion
-        get_crews_conf().require_find(
-            asset->template_id,
-            string("asset: " + to_string(asset->asset_id) + " is not a valid asset").c_str());
-
-        auto minion = crews.find(asset_id);
-
-        // if there's no config for this template
-        if (minion == crews.end()) {
-            crews.emplace(user, [&](auto &row) {
-                row.asset_id = asset_id;
-                row.template_id = asset->template_id;
-                row.owner = user;
-            });
-        } else {
-            // else: modify existing row
-            crews.modify(minion, same_payer, [&](auto &row) {
-                row.asset_id = asset_id;
-                row.template_id = asset->template_id;
-                row.owner = user;
-            });
-        }
-    }
-}
-
+    @auth caller
+*/
 ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
                                 const uint64_t &minion_id, const uint64_t &weapon_id) {
     // check for caller auth
@@ -128,11 +55,11 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
     check_user_crew(user, minion_id);
     check_user_weapon(user, weapon_id);
 
+    // get queues table
     auto queues = get_queues();
 
-    auto queue_entry = queues.find(user.value);
-
     // check if user is not already entered in an arena
+    auto queue_entry = queues.find(user.value);
     check(queue_entry == queues.end(), "user has already entered an arena");
 
     // emplace a new row in the queue
@@ -143,14 +70,25 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
         row.weapon_id = weapon_id;
     });
 
-    uint64_t queue_size = 0;
+    auto accounts = get_accounts();
+    // redefine account to avoid "object passed to modify is not in multi_index" issue
+    account = accounts.find(user.value);
 
+    // deduct the arena cost from the player's balance
+    accounts.modify(account, same_payer, [&](auto &row) {
+        row.balance = account->balance - arena->cost;
+        row.battle_count = account->battle_count + 1;
+    });
+
+    // count the number of players in currently waiting for this arena
+    uint64_t queue_size = 0;
     for (auto itr = queues.begin(); itr != queues.end(); ++itr) {
         if (itr->arena_name.value == arena_name.value) {
             ++queue_size;
         }
     }
 
+    // start the battle
     if (queue_size >= 8) {
         // start the battle
         action(permission_level{get_self(), name("active")}, get_self(), name("startbattle"),
@@ -159,6 +97,14 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
     }
 }
 
+/*
+    Withdraw the balance from the user's in-game wallet
+
+    @param {name} user - the name of the account
+    @param {asset} quantity - the quantity to withdraw
+
+    @auth caller
+*/
 ACTION alienrumblex::withdraw(const name &user, const asset &quantity) {
     // check for caller auth
     require_auth(user);
