@@ -24,7 +24,6 @@ export type WindowProps = {
 	visible: boolean;
 	showPopup: (type: "success" | "error", message: string) => void;
 	refetchBalances: () => void;
-	refetchTools: () => void;
 };
 
 export type GameUser = {
@@ -49,9 +48,21 @@ export type CrewConf = {
 	defense: number;
 };
 
-export type Crew = {};
+export type AssetItem = {
+	asset_id: string;
+	collection_name: string;
+	schema_name: string;
+	template_id: number;
+};
 
-export type Weapon = {};
+export type AssetTemplate = {
+	name: string;
+	img: string;
+	template_id: number;
+};
+
+export type Crew = AssetItem & AssetTemplate & CrewConf;
+export type Weapon = AssetItem & AssetTemplate & WeaponConf;
 
 export type Arena = {
 	name: string;
@@ -59,7 +70,7 @@ export type Arena = {
 	fee: number;
 };
 
-export type Queue = {
+export type QueueEntry = {
 	player: string;
 	arena_name: string;
 	minion_id: string;

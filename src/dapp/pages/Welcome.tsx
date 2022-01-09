@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { withRouter } from "react-router-dom";
 import BottomBar from "../components/BottomBar";
+import Logo from "../components/Logo";
 import { AppCtx } from "../constants";
 
 function Welcome(): JSX.Element {
@@ -9,13 +10,7 @@ function Welcome(): JSX.Element {
 	return (
 		<div className="page">
 			<div className="main welcome">
-				<div className="logo">
-					<span className="logo-text">
-						<span>Alien</span>
-						<span>Rumble</span>
-						<span style={{ color: "var(--color-one)" }}>X</span>
-					</span>
-				</div>
+				<Logo />
 				<div className="welcome-message">
 					<h1>Welcome to AlienRumbleX, the greatest battle arena in the metaverse</h1>
 					<h2>

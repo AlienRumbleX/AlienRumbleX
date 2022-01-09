@@ -111,6 +111,21 @@ body {
     text-align: center;
 }
 
+.loading-indicator-m {
+    color     : var(--bright-white);
+    font-size : 2em;
+    text-align: center;
+    margin    : 0 auto;
+}
+
+.logo {
+    .logo-text {
+        font-family: "Mouse Memoirs", cursive;
+        font-size  : 5em;
+        color      : var(--bright-white);
+    }
+}
+
 .page {
     display  : flex;
     flex-flow: column;
@@ -125,14 +140,6 @@ body {
         padding  : 2em;
 
         &.welcome {
-            .logo {
-                .logo-text {
-                    font-family: "Mouse Memoirs", cursive;
-                    font-size  : 5em;
-                    color      : var(--bright-white);
-                }
-            }
-
             .welcome-message {
                 color: var(--bright-white);
 
@@ -171,7 +178,234 @@ body {
             }
         }
 
+        &.game {
+            flex-flow: column;
 
+            .register {
+                display        : flex;
+                justify-content: center;
+                flex-grow      : 1;
+
+                .register-inner {
+                    align-self: center;
+                    margin-top: -10%;
+                    display   : flex;
+                    flex-flow : column;
+
+                    h1 {
+                        font-size  : 3em;
+                        color      : var(--bright-white);
+                        font-weight: normal;
+                    }
+
+                    .buttons {
+                        display        : flex;
+                        flex-flow      : row;
+                        justify-content: space-evenly;
+                        flex-basis     : 100%;
+
+                        .register-btn {
+                            padding  : 10px 40px;
+                            font-size: 1.4em;
+                        }
+
+                        .logout-btn {
+                            padding         : 10px 40px;
+                            font-size       : 1.4em;
+                            background-color: var(--color-two);
+                        }
+                    }
+                }
+            }
+
+            .topbar {
+                display        : flex;
+                flex-flow      : row;
+                justify-content: space-between;
+                margin         : 0 2em 2em 2em;
+
+                .right-side {
+                    display  : flex;
+                    flex-flow: row;
+
+                    .balance {
+                        display    : flex;
+                        flex-flow  : column;
+                        align-self : center;
+                        font-family: 'Fredoka One', cursive;
+                        text-shadow: 0 0 4px #000000bf;
+                        line-height: 160%;
+
+                        .in-game {
+                            color: var(--color-three);
+                        }
+
+                        .in-account {
+                            color: var(--color-three);
+                        }
+                    }
+
+                    .account-name {
+                        align-self : center;
+                        color      : var(--color-eight);
+                        font-family: 'Fredoka One', cursive;
+                        margin-left: 20px;
+                        text-shadow: 0 0 4px #000000bf;
+                    }
+
+                    .logout-button {
+                        background-color: var(--color-two);
+                        font-size       : 0.8em;
+                        padding         : 10px 20px;
+                        align-self      : center;
+                        margin-left     : 20px;
+                    }
+                }
+            }
+
+            .window-ui {
+                flex-grow  : 1;
+                display    : flex;
+                margin     : 0 auto;
+                width      : 90%;
+                align-items: center;
+                flex-flow  : column;
+
+                .center-ui {
+                    flex-grow       : 1;
+                    width           : 100%;
+                    background-color: var(--color-five);
+                    border-radius   : 1em;
+                    display         : flex;
+                    box-shadow      : 0 0 10px 0 #000;
+
+                    .center-ui-inner {
+                        flex     : 1;
+                        margin   : 4px;
+                        padding  : 8px;
+                        display  : flex;
+                        flex-flow: column;
+                        max-width: calc(100% - 28px);
+
+                        .controls {
+                            display  : flex;
+                            flex-flow: column;
+                            padding  : 8px 4px;
+
+                            .controls-inner {
+                                align-self: center;
+                                display   : flex;
+                                flex-flow : row;
+
+                                a {
+                                    margin          : 4px 8px;
+                                    padding         : 10px 20px;
+                                    text-decoration : none;
+                                    background-color: var(--color-four);
+                                }
+                            }
+                        }
+
+                        .windows {
+                            flex-grow       : 1;
+                            display         : flex;
+                            flex-flow       : column;
+                            box-shadow      : 0 0 11px #000;
+                            border-radius   : 12px;
+                            padding         : 8px;
+                            background-color: #ffffff07;
+
+                            .window {
+                                flex-grow: 1;
+                                display  : flex;
+                                flex-flow: column;
+
+                                .wallet {
+                                    display  : flex;
+                                    flex-flow: row;
+                                    flex-grow: 1;
+
+                                    .deposit,
+                                    .withdraw {
+                                        flex-grow  : 1;
+                                        display    : flex;
+                                        flex-flow  : column;
+                                        align-items: center;
+                                        color      : var(--bright-white);
+
+                                        h3 {
+                                            font-weight: normal;
+                                            font-size  : 2em;
+                                        }
+
+                                        .controls {
+                                            display  : flex;
+                                            flex-flow: column;
+
+                                            .balance {
+                                                font-family  : 'Fredoka One', cursive;
+                                                margin-bottom: 12px;
+                                                cursor       : pointer;
+                                            }
+
+                                            .input {
+                                                padding: 12px 4px;
+                                            }
+
+                                            .button {
+                                                margin-top: 16px;
+                                                padding   : 10px 12px;
+
+                                                &.deposit-btn {
+                                                    background-color: var(--color-eight);
+                                                }
+
+                                                &.withdraw-btn {
+                                                    background-color: var(--color-two);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                .message {
+                                    align-items    : center;
+                                    color          : var(--color-three);
+                                    display        : flex;
+                                    flex           : 1;
+                                    flex-flow      : column;
+                                    font-size      : 2.4em;
+                                    justify-content: center;
+                                    line-height    : 150%;
+
+                                    .warning {
+                                        color     : var(--color-three);
+                                        margin    : 8px 4px;
+                                        text-align: center;
+                                    }
+
+                                    .help {
+                                        color     : var(--bright-white);
+                                        font-size : 0.8em;
+                                        margin    : 8px 4px;
+                                        text-align: center;
+                                    }
+
+                                    .button {
+                                        padding: 12px 24px;
+
+                                        a {
+                                            color          : var(--bright-white);
+                                            text-decoration: none;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     .bottom-bar {
@@ -209,6 +443,14 @@ body {
 }
 
 @media screen and (max-width: 720px) {
+    .logo {
+        text-align: center;
+
+        .logo-text {
+            font-size: 4em;
+        }
+    }
+
     .popup-message {
         top          : 0em;
         right        : 0em;
@@ -224,14 +466,6 @@ body {
     .page {
         .main {
             &.welcome {
-                .logo {
-                    text-align: center;
-
-                    .logo-text {
-                        font-size: 4em;
-                    }
-                }
-
                 .welcome-message {
                     h1 {
                         font-size: 3em;
@@ -239,7 +473,52 @@ body {
                 }
             }
 
+            &.game {
+                padding: 2em 1em;
 
+                .topbar {
+                    margin   : 0 0 2em 0;
+                    flex-flow: column;
+
+                    .right-side {
+                        flex           : 1;
+                        justify-content: space-between;
+                    }
+                }
+
+                .window-ui {
+                    .center-ui {
+                        .center-ui-inner {
+                            .controls {
+                                .controls-inner {
+                                    a {
+                                        margin : 4px;
+                                        padding: 8px;
+                                    }
+                                }
+                            }
+
+                            .windows {
+                                .window {
+                                    .exchanges {
+                                        flex-flow: column;
+
+                                        .deposit,
+                                        .withdraw {
+                                            flex-flow    : row;
+                                            margin-bottom: 8px;
+
+                                            h3 {
+                                                flex: 1;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         .bottom-bar {

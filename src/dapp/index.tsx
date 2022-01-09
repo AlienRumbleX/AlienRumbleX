@@ -4,9 +4,10 @@ import { BrowserRouter as Router, Redirect } from "react-router-dom";
 import "regenerator-runtime/runtime";
 import { UALProvider, withUAL } from "ual-reactjs-renderer";
 import { AppCtx, BLOCKCHAIN, DAPP_NAME, WAX_CHAIN } from "./constants";
+import Game from "./pages/Game";
 import Welcome from "./pages/Welcome";
 import "./style.less";
-import { Crew, CrewConf, GameUser, UAL, Weapon, WeaponConf } from "./types";
+import { Arena, AssetTemplate, Crew, CrewConf, GameUser, QueueEntry, UAL, Weapon, WeaponConf } from "./types";
 
 function useForceUpdate() {
 	const [, setValue] = useState<number>(0);
@@ -29,7 +30,7 @@ function AlienRumbleX(): JSX.Element {
 		<>
 			{ual.activeUser ? <Redirect to="/home" /> : <Redirect to="/" />}
 			{!ual.activeUser && <Welcome />}
-			{/* {ual.activeUser && <Game />} */}
+			{ual.activeUser && <Game />}
 		</>
 	);
 }
@@ -44,6 +45,11 @@ export default function App(props: React.PropsWithChildren<{ ual?: UAL }>): JSX.
 
 	const [crews, setCrews] = useState<Crew[]>(null);
 	const [weapons, setWeapons] = useState<Weapon[]>(null);
+
+	const [arenas, setArenas] = useState<Arena[]>(null);
+	const [queue, setQueue] = useState<QueueEntry[]>(null);
+
+	const [assetsTemplates, setAssetsTemplates] = useState<AssetTemplate[]>(null);
 
 	return (
 		<AppCtx.Provider
@@ -63,6 +69,12 @@ export default function App(props: React.PropsWithChildren<{ ual?: UAL }>): JSX.
 				setCrews,
 				weapons,
 				setWeapons,
+				assetsTemplates,
+				setAssetsTemplates,
+				arenas,
+				setArenas,
+				queue,
+				setQueue,
 			}}
 		>
 			{props.children}

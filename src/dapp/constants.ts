@@ -1,7 +1,7 @@
 import { Wax } from "@eosdacio/ual-wax";
 import React from "react";
 import { Anchor } from "ual-anchor";
-import { Crew, CrewConf, GameUser, UAL, Weapon, WeaponConf } from "./types";
+import { Arena, AssetTemplate, Crew, CrewConf, GameUser, QueueEntry, UAL, Weapon, WeaponConf } from "./types";
 
 export interface AppContextInterface {
 	ual: UAL;
@@ -26,6 +26,15 @@ export interface AppContextInterface {
 
 	weapons: Weapon[];
 	setWeapons: (weapons: Weapon[]) => void;
+
+	assetsTemplates: AssetTemplate[];
+	setAssetsTemplates: (templates: AssetTemplate[]) => void;
+
+	arenas: Arena[];
+	setArenas: (arenas: Arena[]) => void;
+
+	queue: QueueEntry[];
+	setQueue: (battles: QueueEntry[]) => void;
 }
 
 export const AppCtx = React.createContext<AppContextInterface | null>(null);
@@ -50,7 +59,7 @@ const TESTNET = {
 };
 
 export const WAX_CHAIN = { chainId: MAINNET.CHAIN, rpcEndpoints: [{ protocol: "https", host: MAINNET.ENDPOINT, port: 443 }] };
-export const DAPP_NAME = "AlienRumbleX";
+export const DAPP_NAME = "alienrumblex";
 
 MAINNET.AUTHENTICATORS = [new Anchor([WAX_CHAIN], { appName: DAPP_NAME }), new Wax([WAX_CHAIN], {})];
 TESTNET.AUTHENTICATORS = [new Anchor([WAX_CHAIN], { appName: DAPP_NAME })];
