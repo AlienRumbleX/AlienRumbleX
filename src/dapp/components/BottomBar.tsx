@@ -13,6 +13,9 @@ function BottomBar(): JSX.Element {
 				<a href="https://github.com/benjiewheeler/AlienRumbleX" target="_blank" rel="noreferrer" className="link">
 					Github
 				</a>
+				<a href="https://github.com/AlienRumbleX/AlienRumbleX/blob/master/README.md" target="_blank" rel="noreferrer" className="link">
+					Doc
+				</a>
 			</div>
 		</div>
 	);
