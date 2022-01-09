@@ -1,0 +1,258 @@
+:root {
+    --bright-white: #e8e8e8;
+    --dim-white   : #bfbfbf;
+    --color-one   : hsl(000, 65%, 40%);
+    --color-two   : hsl(030, 75%, 50%);
+    --color-three : hsl(060, 75%, 50%);
+    --color-four  : hsl(240, 40%, 50%);
+    --color-five  : hsl(300, 75%, 05%);
+    --color-six   : hsl(300, 75%, 10%);
+    --color-seven : hsl(300, 35%, 20%);
+    --color-eight : hsl(175, 45%, 50%);
+}
+
+html,
+body {
+    font-family: 'Mouse Memoirs', cursive;
+    display    : flex;
+    flex-grow  : 1;
+    min-height : 100%;
+    margin     : 0;
+    overflow-x : hidden;
+}
+
+#root {
+    background-image: linear-gradient(-100deg, var(--color-seven), var(--color-six));
+    flex-grow       : 1;
+    display         : flex;
+    max-width       : 100%;
+}
+
+.link {
+    text-decoration: none;
+    color          : var(--bright-white);
+    font-family    : sans-serif;
+
+    &:hover {
+        color: var(--color-three);
+    }
+}
+
+.button {
+    background-color: var(--color-four);
+    background-image: linear-gradient(-25deg, #000000bf, #00000000);
+    border          : none;
+    border-radius   : 8px;
+    box-shadow      : 0 0 1px 0 var(--color-six);
+    color           : var(--bright-white);
+    cursor          : pointer;
+    display         : flex;
+    font-family     : 'Fredoka One', cursive;
+    outline         : none;
+    text-align      : center;
+
+    &:hover {
+        box-shadow: 0 0 4px 0 var(--color-six);
+    }
+
+    &:active {
+        box-shadow: 0 0 4px 0 var(--color-six) inset;
+    }
+
+    &:disabled {
+        background-color: var(--dim-white) !important;
+        cursor          : no-drop;
+    }
+}
+
+.input {
+    background-color: transparent;
+    border          : 1px solid var(--dim-white);
+    border-radius   : 8px;
+    color           : var(--bright-white);
+    font-family     : 'Fredoka One', cursive;
+    outline         : none;
+
+    &:focus {
+        box-shadow: 0 0 1px 0 var(--color-three);
+    }
+}
+
+.popup-message {
+    position        : fixed;
+    top             : 3em;
+    right           : 1em;
+    padding         : 1em;
+    background-image: linear-gradient(-25deg, #000000bf, #00000000);
+    border-radius   : 8px;
+
+    &.error {
+        background-color: var(--color-one);
+    }
+
+    &.success {
+        background-color: var(--color-four);
+    }
+
+    .message {
+        color    : var(--bright-white);
+        font-size: 1.4em;
+    }
+}
+
+.loading-indicator {
+    position  : fixed;
+    top       : 40%;
+    left      : 45%;
+    width     : 10%;
+    display   : inline-block;
+    color     : var(--bright-white);
+    font-size : 2em;
+    text-align: center;
+}
+
+.page {
+    display  : flex;
+    flex-flow: column;
+    flex-grow: 1;
+    max-width: 100%;
+
+    .main {
+        display  : flex;
+        flex-grow: 1;
+        max-width: 100%;
+        flex-flow: column;
+        padding  : 2em;
+
+        &.welcome {
+            .logo {
+                .logo-text {
+                    font-family: "Mouse Memoirs", cursive;
+                    font-size  : 5em;
+                    color      : var(--bright-white);
+                }
+            }
+
+            .welcome-message {
+                color: var(--bright-white);
+
+                h1 {
+                    font-weight  : normal;
+                    font-size    : 4em;
+                    margin-bottom: 0.2em;
+                }
+
+                h2 {
+                    font-weight  : normal;
+                    font-size    : 2em;
+                    margin-bottom: 0.2em;
+                }
+
+                .note {
+                    display    : block;
+                    font-weight: normal;
+                    font-family: 'Fredoka One', cursive;
+                    opacity    : 0.07;
+                    transition : opacity 0.3s ease-in;
+
+                    &:hover {
+                        opacity: 1;
+                    }
+                }
+            }
+
+            .login {
+                margin-top: 2em;
+
+                .login-button {
+                    font-size: 1.4em;
+                    padding  : 10px 40px;
+                }
+            }
+        }
+
+
+    }
+
+    .bottom-bar {
+        color           : var(--dim-white);
+        font-family     : sans-serif;
+        font-size       : 14px;
+        line-height     : 17px;
+        padding         : 12px 4%;
+        display         : flex;
+        flex-flow       : row;
+        background-color: rgba(0, 0, 0, 0.2);
+        box-shadow      : 0 4px 2px -4px #000 inset;
+
+        .copyright,
+        .links,
+        .website {
+            flex-grow : 1;
+            flex-basis: 33%;
+        }
+
+        .links {
+            display        : flex;
+            flex-flow      : row;
+            justify-content: center;
+
+            .link {
+                margin: 0 16px;
+            }
+        }
+
+        .website {
+            text-align: right;
+        }
+    }
+}
+
+@media screen and (max-width: 720px) {
+    .popup-message {
+        top          : 0em;
+        right        : 0em;
+        padding      : 0.8em;
+        border-radius: 0 0 8px 8px;
+
+        .message {
+            font-size : 1.2em;
+            text-align: center;
+        }
+    }
+
+    .page {
+        .main {
+            &.welcome {
+                .logo {
+                    text-align: center;
+
+                    .logo-text {
+                        font-size: 4em;
+                    }
+                }
+
+                .welcome-message {
+                    h1 {
+                        font-size: 3em;
+                    }
+                }
+            }
+
+
+        }
+
+        .bottom-bar {
+            flex-direction: column;
+
+            .copyright,
+            .links,
+            .website {
+                padding   : 2px 10px;
+                flex-grow : 1;
+                flex-basis: 100%;
+                text-align: center;
+            }
+        }
+    }
+}
