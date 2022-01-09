@@ -51,4 +51,4 @@ where `multiplier` is either one of `1` or `0.5`:
 ###### *The formula used is very simple and basic, it might be updated in the future*
 
 ### Note
-AlienRumbleX is not officially part of Alien World, it is a community driven game based on some of Alien World NFTs and TLM
+AlienRumbleX is not officially part of Alien Worlds, it is a community driven game based on some of Alien Worlds' NFTs and TLM token
