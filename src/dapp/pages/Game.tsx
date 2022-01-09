@@ -311,7 +311,7 @@ function Game(): JSX.Element {
 						},
 					],
 				},
-				{ broadcast: true },
+				{ broadcast: true, blocksBehind: 3, expireSeconds: 1800 },
 			)
 			.then(res => res)
 			.catch(error => error);
