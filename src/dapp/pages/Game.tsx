@@ -6,6 +6,7 @@ import BottomBar from "../components/BottomBar";
 import Logo from "../components/Logo";
 import { AppCtx, BLOCKCHAIN } from "../constants";
 import { AssetItem, Crew, Weapon } from "../types";
+import ArenasWindow from "../windows/Arenas";
 import HomeWindow from "../windows/Home";
 import WalletWindow from "../windows/Wallet";
 
@@ -24,6 +25,7 @@ function Game(): JSX.Element {
 		setWeaponConfs,
 		setCrews,
 		setWeapons,
+		setArenas,
 		assetsTemplates,
 		setAssetsTemplates,
 	} = useContext(AppCtx);
@@ -37,8 +39,8 @@ function Game(): JSX.Element {
 	const match = useRouteMatch(["/home", "/arenas", "/wallet"]);
 
 	useEffect(() => refetchData(), []);
-	useEffect(() => refreshCrews(), [assetsTemplates, crewConfs]);
-	useEffect(() => refreshWeapons(), [assetsTemplates, weaponConfs]);
+	useEffect(() => refreshCrews(), [crewAssets, assetsTemplates, crewConfs]);
+	useEffect(() => refreshWeapons(), [weaponAssets, assetsTemplates, weaponConfs]);
 
 	const refetchData = () => {
 		refetchBalances(true);
@@ -48,6 +50,7 @@ function Game(): JSX.Element {
 
 		fetchCrewsConfigurations();
 		fetchWeaponsConfigurations();
+		fetchArenas();
 
 		refreshCrews();
 		refreshWeapons();
@@ -195,6 +198,30 @@ function Game(): JSX.Element {
 		const data = await response.json();
 
 		setWeaponConfs(data.rows);
+		setLoading(false);
+	};
+
+	const fetchArenas = async (showLoading = false) => {
+		if (showLoading) {
+			setLoading(true);
+		}
+		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
+			headers: { "content-type": "application/json;charset=UTF-8" },
+			body: JSON.stringify({
+				json: true,
+				code: BLOCKCHAIN.DAPP_CONTRACT,
+				scope: BLOCKCHAIN.DAPP_CONTRACT,
+				table: "arenas",
+				limit: 1000,
+			}),
+			method: "POST",
+			mode: "cors",
+			credentials: "omit",
+		});
+
+		const data = await response.json();
+
+		setArenas(data.rows);
 		setLoading(false);
 	};
 
@@ -379,11 +406,11 @@ function Game(): JSX.Element {
 														showPopup={showPopup}
 														visible={match?.path == "/home"}
 													/>
-													{/* <ArenasWindow
+													<ArenasWindow
 														refetchBalances={refetchBalances}
 														showPopup={showPopup}
 														visible={match?.path == "/arenas"}
-													/> */}
+													/>
 													<WalletWindow
 														refetchBalances={refetchBalances}
 														showPopup={showPopup}

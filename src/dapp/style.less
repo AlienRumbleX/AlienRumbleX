@@ -320,6 +320,102 @@ body {
                                 display  : flex;
                                 flex-flow: column;
 
+                                .arenas,
+                                .crews,
+                                .weapons {
+                                    h3 {
+                                        font-size  : 2em;
+                                        padding    : 0 1em;
+                                        color      : var(--bright-white);
+                                        font-weight: normal;
+                                    }
+
+                                    .arena-list,
+                                    .crew-list,
+                                    .weapon-list {
+                                        display        : flex;
+                                        flex-flow      : row wrap;
+                                        color          : var(--bright-white);
+                                        padding        : 8px;
+                                        justify-content: space-evenly;
+
+                                        .arena {
+                                            display      : flex;
+                                            flex-flow    : column;
+                                            padding      : 16px;
+                                            margin-bottom: 4px;
+                                            border-radius: 8px;
+                                            cursor       : pointer;
+
+                                            .name {
+                                                font-size     : 2em;
+                                                padding-bottom: 12px;
+                                            }
+
+                                            .cost {
+                                                font-family: 'Fredoka One', cursive;
+                                            }
+
+                                            .fee {
+                                                font-family: 'Fredoka One', cursive;
+                                                color      : var(--color-three);
+                                            }
+
+                                            &:hover {
+                                                box-shadow: 0 0 2px 0 var(--color-three);
+                                            }
+
+                                            &.selected {
+                                                box-shadow: 0 0 4px 0 var(--color-three);
+                                            }
+
+                                            &.disabled {
+                                                cursor: not-allowed;
+
+                                                &:hover {
+                                                    box-shadow: 0 0 2px 0 var(--color-one);
+                                                }
+
+                                                .fee {
+                                                    color: var(--dim-white);
+                                                }
+                                            }
+                                        }
+
+                                        .minion,
+                                        .weapon {
+                                            display      : flex;
+                                            flex-flow    : column;
+                                            padding      : 16px;
+                                            margin-bottom: 4px;
+                                            border-radius: 8px;
+                                            cursor       : pointer;
+
+                                            img {
+                                                max-width: 120px;
+                                            }
+
+                                            .name {
+                                                font-size  : 1.3em;
+                                                padding-top: 12px;
+                                                text-align : center;
+                                            }
+
+                                            &.selected {
+                                                box-shadow: 0 0 4px 0 var(--color-three);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                .controls {
+                                    .button.enter-battle {
+                                        align-self: center;
+                                        padding   : 16px;
+                                        font-size : 1.2em;
+                                    }
+                                }
+
                                 .wallet {
                                     display  : flex;
                                     flex-flow: row;
@@ -500,7 +596,36 @@ body {
 
                             .windows {
                                 .window {
-                                    .exchanges {
+
+                                    .arenas,
+                                    .crews,
+                                    .weapons {
+
+                                        .arena-list,
+                                        .crew-list,
+                                        .weapon-list {
+                                            .arena {
+                                                .name {
+                                                    font-size: 1.2em;
+                                                }
+                                            }
+
+                                            .minion,
+                                            .weapon {
+                                                padding: 4px;
+
+                                                img {
+                                                    max-width: 96px;
+                                                }
+
+                                                .name {
+                                                    font-size: 1em;
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    .wallet {
                                         flex-flow: column;
 
                                         .deposit,
@@ -511,6 +636,12 @@ body {
                                             h3 {
                                                 flex: 1;
                                             }
+                                        }
+                                    }
+
+                                    .message {
+                                        .help {
+                                            font-size: 0.6em;
                                         }
                                     }
                                 }
