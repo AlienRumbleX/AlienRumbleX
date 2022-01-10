@@ -70,6 +70,16 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
         row.weapon_id = weapon_id;
     });
 
+    // get the userbattles table (by the user's scope)
+    auto battles = get_user_battles(user);
+
+    // emplace a new row in the userbattles table
+    battles.emplace(user, [&](auto &row) {
+        row.battle_id = get_battles().available_primary_key();
+        row.arena_name = arena_name;
+        row.victory = false;
+    });
+
     auto accounts = get_accounts();
     // redefine account to avoid "object passed to modify is not in multi_index" issue
     account = accounts.find(user.value);
@@ -94,6 +104,31 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
         action(permission_level{get_self(), name("active")}, get_self(), name("startbattle"),
                make_tuple(arena_name))
             .send();
+    }
+}
+
+/*
+    Erase the user's battle history from the scoped table userbattles
+    This is done by the user if they wish to clear the consumed RAM
+
+    @param {name} user - the name of the account
+
+    @auth caller
+*/
+ACTION alienrumblex::erasehistory(const name &user) {
+    // check for caller auth
+    require_auth(user);
+
+    // check if user is registered & find the user's account
+    check_user_registered(user);
+
+    // get the userbattles table (by the user's scope)
+    auto battles = get_user_battles(user);
+
+    // iterate through the rows and erase them
+    auto itr = battles.begin();
+    while (itr != battles.end()) {
+        itr = battles.erase(itr);
     }
 }
 

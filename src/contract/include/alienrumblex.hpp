@@ -29,6 +29,7 @@ CONTRACT alienrumblex : public contract {
     ACTION regnewuser(const name &user);
     ACTION enterqueue(const name &user, const name &arena_name, const uint64_t &minion_id,
                       const uint64_t &weapon_id);
+    ACTION erasehistory(const name &user);
     ACTION withdraw(const name &user, const asset &quantity);
 
     // non-action functions
@@ -115,12 +116,30 @@ CONTRACT alienrumblex : public contract {
         }
     };
 
+    // user_battle data struct
+    TABLE user_battle_entity {
+        uint64_t battle_id;
+        name arena_name;
+        bool victory;
+
+        auto primary_key() const {
+            return battle_id;
+        }
+    };
+
     typedef multi_index<name("accounts"), account_entity> accounts_table;
     typedef multi_index<name("weaponconf"), weapon_conf_entity> weapons_conf_table;
     typedef multi_index<name("crewconf"), crew_conf_entity> crews_conf_table;
     typedef multi_index<name("arenas"), arena_entity> arenas_table;
     typedef multi_index<name("queues"), queue_entity> queues_table;
-    typedef multi_index<name("battles"), battle_entity> battles_table;
+    typedef multi_index<
+        name("battles"), battle_entity,
+        indexed_by<name("arena"),
+                   const_mem_fun<battle_entity, uint64_t, &battle_entity::secondary_key>>,
+        indexed_by<name("winner"),
+                   const_mem_fun<battle_entity, uint64_t, &battle_entity::tertiary_key>>>
+        battles_table;
+    typedef multi_index<name("userbattles"), user_battle_entity> user_battles_table;
 
     // helper functions
     accounts_table::const_iterator check_user_registered(const name &user);
@@ -135,4 +154,5 @@ CONTRACT alienrumblex : public contract {
     arenas_table get_arenas();
     queues_table get_queues();
     battles_table get_battles();
+    user_battles_table get_user_battles(const name &user);
 };

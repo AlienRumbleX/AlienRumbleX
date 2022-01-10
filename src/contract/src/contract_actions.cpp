@@ -188,6 +188,7 @@ ACTION alienrumblex::startbattle(const name &arena_name) {
     // get battles table
     auto battles = get_battles();
 
+    // insert a new record
     auto new_battle = battles.emplace(get_self(), [&](auto &row) {
         row.battle_id = battles.available_primary_key();
         row.arena_name = arena_name;
@@ -233,8 +234,14 @@ ACTION alienrumblex::logwinner(const uint64_t &battle_id, const name &winner) {
 
     auto account = check_user_registered(winner);
 
-    get_accounts().modify(accounts_table,same_payer, [&](auto &row) {
-            row.balance = account->balance + prize;
-            row.win_count = account->win_count + 1;
-        });
+    // increase the balance and win_count of the winner
+    get_accounts().modify(account, same_payer, [&](auto &row) {
+        row.balance = account->balance + prize;
+        row.win_count = account->win_count + 1;
+    });
+
+    // mark the battle as victorious in the winners battle history
+    auto winner_battles = get_user_battles(winner);
+    auto usr_battle = winner_battles.find(battle_id);
+    winner_battles.modify(usr_battle, same_payer, [&](auto &row) { row.victory = true; });
 }
