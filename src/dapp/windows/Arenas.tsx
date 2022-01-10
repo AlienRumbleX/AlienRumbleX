@@ -38,7 +38,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 		if (res instanceof Error) {
 			props.showPopup("error", res.message);
 		} else {
-			props.showPopup("success", "Tool unstaked successfully");
+			props.showPopup("success", "Successfully entered the arena");
 		}
 	};
 
