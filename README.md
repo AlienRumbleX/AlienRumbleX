@@ -47,6 +47,7 @@ where `multiplier` is either one of `1` or `0.5`:
 1 (if minion_element = weapon_class)
 0.5 (if minion_element != weapon_class)
 ```
+A winner is then chosen randomly among the top 3 players (by score)
 
 ###### *The formula used is very simple and basic, it might be updated in the future*
 
