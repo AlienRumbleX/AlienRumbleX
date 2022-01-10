@@ -1,5 +1,5 @@
-import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import CopyWebpackPlugin from "copy-webpack-plugin";
+import CssMinimizerPlugin from "css-minimizer-webpack-plugin";
 import HtmlWebPackPlugin from "html-webpack-plugin";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
 import path from "path";
@@ -45,6 +45,7 @@ const config: webpack.Configuration = {
 		new HtmlWebPackPlugin({
 			cache: true,
 			filename: "./index.html",
+			favicon: "./assets/favicon.png",
 			inject: "body",
 			minify: false,
 			scriptLoading: "blocking",
