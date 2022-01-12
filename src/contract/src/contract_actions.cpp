@@ -201,11 +201,10 @@ ACTION alienrumblex::startbattle(const name &arena_name) {
     uint64_t rand_index = tx_rand(3);
     auto winner = contenders[rand_index];
 
-    transaction out{};
-    out.actions.emplace_back(permission_level{get_self(), name("active")}, get_self(),
-                             name("logwinner"), make_tuple(new_battle->battle_id, winner));
-    out.delay_sec = 60;
-    out.send(new_battle->battle_id, get_self());
+    // log the winner
+    action(permission_level{get_self(), name("active")}, get_self(), name("logwinner"),
+           make_tuple(new_battle->battle_id, winner))
+        .send();
 }
 
 ACTION alienrumblex::logwinner(const uint64_t &battle_id, const name &winner) {
