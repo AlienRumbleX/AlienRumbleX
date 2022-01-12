@@ -28,6 +28,7 @@ function Game(): JSX.Element {
 		setArenas,
 		assetsTemplates,
 		setAssetsTemplates,
+		setQueue,
 	} = useContext(AppCtx);
 
 	const [isLoading, setLoading] = useState<boolean>(true);
@@ -56,6 +57,11 @@ function Game(): JSX.Element {
 		refreshWeapons();
 	};
 
+	const refreshData = () => {
+		refetchBalances();
+		refreshQueue();
+	};
+
 	const refreshCrews = () => {
 		const assets = crewAssets?.map<Crew>(minion => ({
 			...minion,
@@ -79,6 +85,25 @@ function Game(): JSX.Element {
 	const refetchBalances = (showLoading = false) => {
 		checkUserInfo(showLoading);
 		fetchAccountBalance();
+	};
+
+	const refreshQueue = async () => {
+		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
+			headers: { "content-type": "application/json;charset=UTF-8" },
+			body: JSON.stringify({
+				json: true,
+				code: BLOCKCHAIN.DAPP_CONTRACT,
+				scope: BLOCKCHAIN.DAPP_CONTRACT,
+				table: "queues",
+				limit: 1000,
+			}),
+			method: "POST",
+			mode: "cors",
+			credentials: "omit",
+		});
+
+		const data = await response.json();
+		setQueue(data.rows);
 	};
 
 	const fetchAssetsTemplates = async (showLoading = false) => {
@@ -402,17 +427,17 @@ function Game(): JSX.Element {
 												</div>
 												<div className="windows">
 													<HomeWindow
-														refetchBalances={refetchBalances}
+														refreshData={refreshData}
 														showPopup={showPopup}
 														visible={match?.path == "/home"}
 													/>
 													<ArenasWindow
-														refetchBalances={refetchBalances}
+														refreshData={refreshData}
 														showPopup={showPopup}
 														visible={match?.path == "/arenas"}
 													/>
 													<WalletWindow
-														refetchBalances={refetchBalances}
+														refreshData={refreshData}
 														showPopup={showPopup}
 														visible={match?.path == "/wallet"}
 													/>

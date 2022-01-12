@@ -23,7 +23,7 @@ export type UAL = {
 export type WindowProps = {
 	visible: boolean;
 	showPopup: (type: "success" | "error", message: string) => void;
-	refetchBalances: () => void;
+	refreshData: () => void;
 };
 
 export type GameUser = {
@@ -71,10 +71,14 @@ export type Arena = {
 };
 
 export type QueueEntry = {
-	player: string;
 	arena_name: string;
 	minion_id: string;
 	weapon_id: string;
+};
+
+export type UserQueueEntry = {
+	player: string;
+	queues: QueueEntry[];
 };
 
 export type Battle = {

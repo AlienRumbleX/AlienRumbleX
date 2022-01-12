@@ -39,7 +39,7 @@ function WalletWindow(props: WindowProps): JSX.Element {
 			props.showPopup("error", res.message);
 		} else {
 			props.showPopup("success", "Tokens deposited successfully");
-			props.refetchBalances();
+			props.refreshData();
 		}
 	};
 
@@ -72,7 +72,7 @@ function WalletWindow(props: WindowProps): JSX.Element {
 			props.showPopup("error", res.message);
 		} else {
 			props.showPopup("success", "Tokens withdrawn successfully");
-			props.refetchBalances();
+			props.refreshData();
 		}
 	};
 

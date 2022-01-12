@@ -1,7 +1,7 @@
 import { Wax } from "@eosdacio/ual-wax";
 import React from "react";
 import { Anchor } from "ual-anchor";
-import { Arena, AssetTemplate, Crew, CrewConf, GameUser, QueueEntry, UAL, Weapon, WeaponConf } from "./types";
+import { Arena, AssetTemplate, Crew, CrewConf, GameUser, UAL, UserQueueEntry, Weapon, WeaponConf } from "./types";
 
 export interface AppContextInterface {
 	ual: UAL;
@@ -33,8 +33,8 @@ export interface AppContextInterface {
 	arenas: Arena[];
 	setArenas: (arenas: Arena[]) => void;
 
-	queue: QueueEntry[];
-	setQueue: (battles: QueueEntry[]) => void;
+	queue: UserQueueEntry[];
+	setQueue: (battles: UserQueueEntry[]) => void;
 }
 
 export const AppCtx = React.createContext<AppContextInterface | null>(null);

@@ -1,37 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { AppCtx, BLOCKCHAIN } from "../constants";
-import { QueueEntry, WindowProps } from "../types";
+import { AppCtx } from "../constants";
+import { WindowProps } from "../types";
 
 function HomeWindow(props: WindowProps): JSX.Element {
-	const { ual, weapons, crews, queue, setQueue } = useContext(AppCtx);
-	const [currentQueueEntry, setCurrentQueueEntry] = useState<QueueEntry>(null);
+	const { weapons, crews, queue, userInfo } = useContext(AppCtx);
 
-	useEffect(() => refreshData(), []);
-	useEffect(() => setCurrentQueueEntry(queue?.find(entry => entry.player == ual.activeUser.accountName)), [queue]);
-
-	const refreshData = () => {
-		refreshQueue();
-	};
-
-	const refreshQueue = async () => {
-		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
-			headers: { "content-type": "application/json;charset=UTF-8" },
-			body: JSON.stringify({
-				json: true,
-				code: BLOCKCHAIN.DAPP_CONTRACT,
-				scope: BLOCKCHAIN.DAPP_CONTRACT,
-				table: "queues",
-				limit: 1000,
-			}),
-			method: "POST",
-			mode: "cors",
-			credentials: "omit",
-		});
-
-		const data = await response.json();
-		setQueue(data.rows);
-	};
+	useEffect(() => props.refreshData(), []);
 
 	return (
 		<>
@@ -51,26 +26,19 @@ function HomeWindow(props: WindowProps): JSX.Element {
 
 						{crews.length > 0 && weapons.length > 0 && (
 							<>
-								{currentQueueEntry && (
-									<div className="message">
-										<span className="help">You are already waiting for an arena to begin the battle</span>
-									</div>
-								)}
-								{!currentQueueEntry && (
-									<div className="message">
-										<span className="help">What are you waiting for ?</span>
-										<span className="help">Pick your warrior and send them to battle</span>
+								<div className="message">
+									<span className="help">What are you waiting for ?</span>
+									<span className="help">Pick your warrior and send them to battle</span>
 
-										<button className="button">
-											<Link to="/arenas">Choose Arena</Link>
-										</button>
-									</div>
-								)}
+									<button className="button">
+										<Link to="/arenas">Choose Arena</Link>
+									</button>
+								</div>
 							</>
 						)}
 					</>
 				)}
-				{!(crews && weapons) && <span className="loading-indicator-m">loading...</span>}
+				{!(crews && weapons && queue && userInfo) && <span className="loading-indicator-m">loading...</span>}
 			</div>
 		</>
 	);

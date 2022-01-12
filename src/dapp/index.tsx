@@ -7,7 +7,7 @@ import { AppCtx, BLOCKCHAIN, DAPP_NAME, WAX_CHAIN } from "./constants";
 import Game from "./pages/Game";
 import Welcome from "./pages/Welcome";
 import "./style.less";
-import { Arena, AssetTemplate, Crew, CrewConf, GameUser, QueueEntry, UAL, Weapon, WeaponConf } from "./types";
+import { Arena, AssetTemplate, Crew, CrewConf, GameUser, UAL, UserQueueEntry, Weapon, WeaponConf } from "./types";
 
 function useForceUpdate() {
 	const [, setValue] = useState<number>(0);
@@ -47,7 +47,7 @@ export default function App(props: React.PropsWithChildren<{ ual?: UAL }>): JSX.
 	const [weapons, setWeapons] = useState<Weapon[]>(null);
 
 	const [arenas, setArenas] = useState<Arena[]>(null);
-	const [queue, setQueue] = useState<QueueEntry[]>(null);
+	const [queue, setQueue] = useState<UserQueueEntry[]>(null);
 
 	const [assetsTemplates, setAssetsTemplates] = useState<AssetTemplate[]>(null);
 
