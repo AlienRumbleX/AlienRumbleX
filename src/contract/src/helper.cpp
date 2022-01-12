@@ -83,7 +83,3 @@ alienrumblex::queues_table alienrumblex::get_queues() {
 alienrumblex::battles_table alienrumblex::get_battles() {
     return battles_table(get_self(), get_self().value);
 }
-
-alienrumblex::user_battles_table alienrumblex::get_user_battles(const name &user) {
-    return user_battles_table(get_self(), user.value);
-}

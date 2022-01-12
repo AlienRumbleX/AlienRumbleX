@@ -124,45 +124,61 @@ ACTION alienrumblex::startbattle(const name &arena_name) {
 
     uint64_t warrior_count = 0;
 
-    auto itr = queues.begin();
+    auto itr1 = queues.begin();
 
-    while (itr != queues.end()) {
-        if (itr->arena_name.value == arena_name.value) {
-            ++warrior_count;
+    while (itr1 != queues.end()) {
+        // make a new queue list as itr1->queues is a const
+        vector<queue_entry> new_queue(itr1->queues);
 
-            // get the user's assets
-            auto assets = atomicassets::get_assets(itr->player);
+        auto arena_entry = find_if(new_queue.begin(), new_queue.end(),
+                                   [&arena = arena_name](const queue_entry &entry) {
+                                       return arena == entry.arena_name;
+                                   });
 
-            // check if user owns the specified assets
-            auto minion = assets.find(itr->minion_id);
-            auto weapon = assets.find(itr->weapon_id);
-
-            // skip this user if they don't own these assets anymore
-            if (minion == assets.end() || weapon == assets.end()) {
-                itr = queues.erase(itr);
-                continue;
-            }
-
-            // check if assets are valid
-            auto minion_conf = crews.find(minion->template_id);
-            auto weapon_conf = weapons.find(weapon->template_id);
-
-            // skip this user if these assets are not valid
-            // this shouldn't happen as the stake* actions check for this
-            // but keep this check here just for completeness
-            if (minion_conf == crews.end() || weapon_conf == weapons.end()) {
-                itr = queues.erase(itr);
-                continue;
-            }
-
-            // check if the minion & weapon have same
-            float multiplier = minion_conf->element == weapon_conf->weapon_class ? 1.0 : 0.5;
-            float score = multiplier * (minion_conf->attack + minion_conf->defense +
-                                        weapon_conf->attack + weapon_conf->defense);
-            warriors[itr->player] = score;
-
-            itr = queues.erase(itr);
+        if (arena_entry == new_queue.end()) {
+            continue;
         }
+
+        // erase the current entry
+        new_queue.erase(arena_entry);
+
+        ++warrior_count;
+
+        // get the user's assets
+        auto assets = atomicassets::get_assets(itr1->player);
+
+        // check if user owns the specified assets
+        auto minion = assets.find(arena_entry->minion_id);
+        auto weapon = assets.find(arena_entry->weapon_id);
+
+        // skip this user if they don't own these assets anymore
+        if (minion == assets.end() || weapon == assets.end()) {
+            queues.modify(itr1, same_payer, [&](auto &row) { row.queues = new_queue; });
+            itr1++;
+            continue;
+        }
+
+        // check if assets are valid
+        auto minion_conf = crews.find(minion->template_id);
+        auto weapon_conf = weapons.find(weapon->template_id);
+
+        // skip this user if these assets are not valid
+        // this shouldn't happen as the enterqueue action checks for this
+        // but keep this check here just in case
+        if (minion_conf == crews.end() || weapon_conf == weapons.end()) {
+            queues.modify(itr1, same_payer, [&](auto &row) { row.queues = new_queue; });
+            itr1++;
+            continue;
+        }
+
+        // check if the minion & weapon have same
+        float multiplier = minion_conf->element == weapon_conf->weapon_class ? 1.0 : 0.5;
+        float score = multiplier * (minion_conf->attack + minion_conf->defense +
+                                    weapon_conf->attack + weapon_conf->defense);
+        warriors[itr1->player] = score;
+
+        queues.modify(itr1, same_payer, [&](auto &row) { row.queues = new_queue; });
+        itr1++;
     }
 
     // sort the warriors by their score
@@ -238,9 +254,27 @@ ACTION alienrumblex::logwinner(const uint64_t &battle_id, const name &winner) {
         row.balance = account->balance + prize;
         row.win_count = account->win_count + 1;
     });
+}
 
-    // mark the battle as victorious in the winners battle history
-    auto winner_battles = get_user_battles(winner);
-    auto usr_battle = winner_battles.find(battle_id);
-    winner_battles.modify(usr_battle, same_payer, [&](auto &row) { row.victory = true; });
+ACTION alienrumblex::fullreset() {
+    // check for self auth
+    require_auth(get_self());
+
+    // get battles table
+    auto battles = get_battles();
+
+    // iterate through the rows and erase them
+    auto itr_b = battles.begin();
+    while (itr_b != battles.end()) {
+        itr_b = battles.erase(itr_b);
+    }
+
+    // get queues table
+    auto queues = get_queues();
+
+    // iterate through the rows and erase them
+    auto itr_q = queues.begin();
+    while (itr_q != queues.end()) {
+        itr_q = queues.erase(itr_q);
+    }
 }

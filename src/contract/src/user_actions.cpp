@@ -59,26 +59,30 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
     auto queues = get_queues();
 
     // check if user is not already entered in an arena
-    auto queue_entry = queues.find(user.value);
-    check(queue_entry == queues.end(), "user has already entered an arena");
+    auto user_queue = queues.find(user.value);
 
-    // emplace a new row in the queue
-    queues.emplace(user, [&](auto &row) {
-        row.player = user;
-        row.arena_name = arena_name;
-        row.minion_id = minion_id;
-        row.weapon_id = weapon_id;
-    });
+    if (user_queue != queues.end()) {
+        auto arena_entry = find_if(user_queue->queues.begin(), user_queue->queues.end(),
+                                   [&arena = arena_name](const queue_entry &entry) {
+                                       return arena == entry.arena_name;
+                                   });
+        check(arena_entry == user_queue->queues.end(), "you can't enter the same arena twice");
 
-    // get the userbattles table (by the user's scope)
-    auto battles = get_user_battles(user);
+        vector<queue_entry> new_queue(user_queue->queues);
+        new_queue.push_back({arena_name, minion_id, weapon_id});
 
-    // emplace a new row in the userbattles table
-    battles.emplace(user, [&](auto &row) {
-        row.battle_id = get_battles().available_primary_key();
-        row.arena_name = arena_name;
-        row.victory = false;
-    });
+        // modify the row in the queues tables
+        queues.modify(user_queue, same_payer, [&](auto &row) {
+            row.player = user;
+            row.queues = new_queue;
+        });
+    } else {
+        // emplace a new row in the queue
+        queues.emplace(user, [&](auto &row) {
+            row.player = user;
+            row.queues = {{arena_name, minion_id, weapon_id}};
+        });
+    }
 
     auto accounts = get_accounts();
     // redefine account to avoid "object passed to modify is not in multi_index" issue
@@ -92,9 +96,11 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
 
     // count the number of players in currently waiting for this arena
     uint64_t queue_size = 0;
-    for (auto itr = queues.begin(); itr != queues.end(); ++itr) {
-        if (itr->arena_name.value == arena_name.value) {
-            ++queue_size;
+    for (auto itr1 = queues.begin(); itr1 != queues.end(); ++itr1) {
+        for (auto itr2 = itr1->queues.begin(); itr2 != itr1->queues.end(); ++itr2) {
+            if (itr2->arena_name.value == arena_name.value) {
+                ++queue_size;
+            }
         }
     }
 
@@ -104,31 +110,6 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
         action(permission_level{get_self(), name("active")}, get_self(), name("startbattle"),
                make_tuple(arena_name))
             .send();
-    }
-}
-
-/*
-    Erase the user's battle history from the scoped table userbattles
-    This is done by the user if they wish to clear the consumed RAM
-
-    @param {name} user - the name of the account
-
-    @auth caller
-*/
-ACTION alienrumblex::erasehistory(const name &user) {
-    // check for caller auth
-    require_auth(user);
-
-    // check if user is registered & find the user's account
-    check_user_registered(user);
-
-    // get the userbattles table (by the user's scope)
-    auto battles = get_user_battles(user);
-
-    // iterate through the rows and erase them
-    auto itr = battles.begin();
-    while (itr != battles.end()) {
-        itr = battles.erase(itr);
     }
 }
 
