@@ -39,7 +39,7 @@ CONTRACT alienrumblex : public contract {
     // accounts table data struct
     TABLE account_entity {
         name account;
-        asset balance;
+        extended_asset balance;
         uint64_t battle_count;
         uint64_t win_count;
 
@@ -51,7 +51,7 @@ CONTRACT alienrumblex : public contract {
     // arena data struct
     TABLE arena_entity {
         name name;
-        asset cost;
+        extended_asset cost;
         uint8_t fee;
 
         auto primary_key() const {

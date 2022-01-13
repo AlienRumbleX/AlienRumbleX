@@ -62,9 +62,9 @@ ACTION alienrumblex::setarena(const name &arena_name, const asset &cost, const u
     require_auth(get_self());
 
     // check if the cost is valid
-    check(cost.is_valid(), "invalid quantity");
+    check(cost.symbol == TLM_SYMBOL, "invalid token symbol");
     check(cost.amount > 0, "cost must be a positive amount");
-    check(cost.symbol == TLM_SYMBOL, "invalid symbol");
+    check(cost.is_valid(), "invalid quantity");
 
     // get arenas table
     auto arenas = get_arenas();
@@ -75,14 +75,14 @@ ACTION alienrumblex::setarena(const name &arena_name, const asset &cost, const u
     if (arena == arenas.end()) {
         arenas.emplace(get_self(), [&](auto &row) {
             row.name = arena_name;
-            row.cost = cost;
+            row.cost = extended_asset(cost, TLM_CONTRACT);
             row.fee = fee;
         });
     } else {
         // else: modify existing row
         arenas.modify(arena, same_payer, [&](auto &row) {
             row.name = arena_name;
-            row.cost = cost;
+            row.cost = extended_asset(cost, TLM_CONTRACT);
             row.fee = fee;
         });
     }
@@ -136,6 +136,7 @@ ACTION alienrumblex::startbattle(const name &arena_name) {
                                    });
 
         if (arena_entry == new_queue.end()) {
+            itr1++;
             continue;
         }
 
@@ -180,6 +181,8 @@ ACTION alienrumblex::startbattle(const name &arena_name) {
         queues.modify(itr1, same_payer, [&](auto &row) { row.queues = new_queue; });
         itr1++;
     }
+
+    check(warrior_count > 0, "no warriors are waiting for this arena");
 
     // sort the warriors by their score
     vector<name> players(warriors.size());
@@ -245,7 +248,9 @@ ACTION alienrumblex::logwinner(const uint64_t &battle_id, const name &winner) {
 
     // calculate the prize amount
     auto percentage = (100 - arena->fee) / 100.0f;
-    auto prize = asset((uint64_t)(arena->cost.amount * warrior_count * percentage), TLM_SYMBOL);
+    auto prize = extended_asset(
+        asset((uint64_t)(arena->cost.quantity.amount * warrior_count * percentage), TLM_SYMBOL),
+        TLM_CONTRACT);
 
     auto account = check_user_registered(winner);
 

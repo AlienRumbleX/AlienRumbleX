@@ -19,7 +19,7 @@ ACTION alienrumblex::regnewuser(const name &user) {
     // emplace a new user row
     accounts.emplace(user, [&](auto &row) {
         row.account = user;
-        row.balance = asset(0, TLM_SYMBOL);
+        row.balance = extended_asset(asset(0, TLM_SYMBOL), TLM_CONTRACT);
         row.battle_count = 0;
         row.win_count = 0;
     });
@@ -117,7 +117,7 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
     Withdraw the balance from the user's in-game wallet
 
     @param {name} user - the name of the account
-    @param {asset} quantity - the quantity to withdraw
+    @param {extended_asset} quantity - the quantity to withdraw
 
     @auth caller
 */
@@ -133,11 +133,12 @@ ACTION alienrumblex::withdraw(const name &user, const asset &quantity) {
     auto account = check_user_registered(user);
 
     // check if the user has enough balance to withdraw
-    check(account->balance >= quantity, "overdrawn balance");
+    check(account->balance.quantity >= quantity, "overdrawn balance");
 
     // save new account stats
-    get_accounts().modify(account, same_payer,
-                          [&](auto &row) { row.balance = account->balance - quantity; });
+    get_accounts().modify(account, same_payer, [&](auto &row) {
+        row.balance = extended_asset(asset(account->balance.quantity - quantity), TLM_CONTRACT);
+    });
 
     // send the amount
     action(permission_level{get_self(), name("active")}, TLM_CONTRACT, name("transfer"),
@@ -165,6 +166,7 @@ void alienrumblex::receive_tokens(name from, name to, asset quantity, string mem
     auto account = check_user_registered(from);
 
     // save new account stats
-    get_accounts().modify(account, same_payer,
-                          [&](auto &row) { row.balance = account->balance + quantity; });
+    get_accounts().modify(account, same_payer, [&](auto &row) {
+        row.balance = extended_asset(asset(account->balance.quantity + quantity), TLM_CONTRACT);
+    });
 }
