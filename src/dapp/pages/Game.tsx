@@ -5,7 +5,7 @@ import { SignTransactionResponse } from "universal-authenticator-library";
 import BottomBar from "../components/BottomBar";
 import Logo from "../components/Logo";
 import { AppCtx, BLOCKCHAIN } from "../constants";
-import { AssetItem, Crew, Weapon } from "../types";
+import { AssetItem, Crew, GameUser, Weapon } from "../types";
 import ArenasWindow from "../windows/Arenas";
 import HomeWindow from "../windows/Home";
 import WalletWindow from "../windows/Wallet";
@@ -302,10 +302,10 @@ function Game(): JSX.Element {
 			credentials: "omit",
 		});
 
-		const data = await response.json();
+		const data: { rows: GameUser[] } = await response.json();
 
-		setUserInfo(data.rows[0]);
-		setGameBalance((data.rows.length && parseFloat(data.rows[0].balance)) || 0);
+		setUserInfo(data?.rows[0]);
+		setGameBalance((data?.rows.length && parseFloat(data?.rows[0]?.balance?.quantity)) || 0);
 
 		setLoading(false);
 	};

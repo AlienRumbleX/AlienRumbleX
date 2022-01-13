@@ -28,7 +28,10 @@ export type WindowProps = {
 
 export type GameUser = {
 	account: string;
-	balance: string;
+	balance: {
+		contract: string;
+		quantity: string;
+	};
 	battle_count: number;
 	win_count: number;
 };
@@ -66,7 +69,10 @@ export type Weapon = AssetItem & AssetTemplate & WeaponConf;
 
 export type Arena = {
 	name: string;
-	cost: string;
+	cost: {
+		contract: string;
+		quantity: string;
+	};
 	fee: number;
 };
 

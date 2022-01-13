@@ -67,7 +67,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											<div
 												className={[
 													"arena",
-													(gameBalance < parseFloat(arena.cost) ||
+													(gameBalance < parseFloat(arena.cost.quantity) ||
 														queue
 															?.find(e => e.player == ual.activeUser.accountName)
 															?.queues?.find(e => e.arena_name == arena.name)) &&
@@ -77,7 +77,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 													.filter(c => !!c)
 													.join(" ")}
 												title={
-													gameBalance < parseFloat(arena.cost)
+													gameBalance < parseFloat(arena.cost.quantity)
 														? "Insufficient balance to enter"
 														: queue
 																?.find(e => e.player == ual.activeUser.accountName)
@@ -87,7 +87,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 												}
 												key={arena.name}
 												onClick={() =>
-													gameBalance < parseFloat(arena.cost) ||
+													gameBalance < parseFloat(arena.cost.quantity) ||
 													queue
 														?.find(e => e.player == ual.activeUser.accountName)
 														?.queues?.find(e => e.arena_name == arena.name)
@@ -96,7 +96,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 												}
 											>
 												<span className="name">{arena.name}</span>
-												<span className="cost">{`${parseFloat(arena.cost).toLocaleString("en", {
+												<span className="cost">{`${parseFloat(arena.cost.quantity).toLocaleString("en", {
 													useGrouping: true,
 													maximumFractionDigits: 4,
 													minimumFractionDigits: 0,
