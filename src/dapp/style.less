@@ -374,11 +374,25 @@ body {
                                                 box-shadow: 0 0 4px 0 var(--color-three);
                                             }
 
-                                            &.disabled {
-                                                cursor: not-allowed;
+                                            &.entered {
+                                                box-shadow: 0 0 2px 0 var(--color-eight);
+                                                cursor    : not-allowed;
 
                                                 &:hover {
-                                                    box-shadow: 0 0 2px 0 var(--color-one);
+                                                    box-shadow: 0 0 4px 0 var(--color-eight);
+                                                }
+
+                                                .fee {
+                                                    color: var(--dim-white);
+                                                }
+                                            }
+
+                                            &.disabled {
+                                                box-shadow: 0 0 2px 0 var(--color-one);
+                                                cursor    : not-allowed;
+
+                                                &:hover {
+                                                    box-shadow: 0 0 4px 0 var(--color-one);
                                                 }
 
                                                 .fee {

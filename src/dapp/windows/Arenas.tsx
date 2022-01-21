@@ -67,24 +67,24 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											<div
 												className={[
 													"arena",
-													(gameBalance < parseFloat(arena.cost.quantity) ||
-														queue
-															?.find(e => e.player == ual.activeUser.accountName)
-															?.queues?.find(e => e.arena_name == arena.name)) &&
-														"disabled",
+													gameBalance < parseFloat(arena.cost.quantity) && "disabled",
+													queue
+														?.find(e => e.player == ual.activeUser.accountName)
+														?.queues?.find(e => e.arena_name == arena.name) && "entered",
 													selectedArena?.name == arena.name && "selected",
 												]
 													.filter(c => !!c)
 													.join(" ")}
-												title={
-													gameBalance < parseFloat(arena.cost.quantity)
-														? "Insufficient balance to enter"
-														: queue
-																?.find(e => e.player == ual.activeUser.accountName)
-																?.queues?.find(e => e.arena_name == arena.name)
-														? "You can't enter the same arena twice"
-														: arena.name
-												}
+												title={[
+													arena.name,
+													gameBalance < parseFloat(arena.cost.quantity) && "Insufficient balance to enter",
+													queue
+														?.find(e => e.player == ual.activeUser.accountName)
+														?.queues?.find(e => e.arena_name == arena.name) &&
+														"You can't enter the same arena twice",
+												]
+													.filter(t => !!t)
+													.join("\n")}
 												key={arena.name}
 												onClick={() =>
 													gameBalance < parseFloat(arena.cost.quantity) ||
