@@ -34,19 +34,24 @@ function Game(): JSX.Element {
 		setQueue,
 	} = useContext(AppCtx);
 
-	const [isLoading, setLoading] = useState<boolean>(true);
+	const [isLoading, setLoading] = useState<boolean>(false);
 	const [popupMessage, setPopupMessage] = useState<string>(null);
 	const [popupType, setPopupType] = useState<"success" | "error">(null);
 	const [crewAssets, setCrewAssets] = useState<AssetItem[]>(null);
 	const [weaponAssets, setWeaponAssets] = useState<AssetItem[]>(null);
+	const [selectedEndpoint, setSelectedEndpoint] = useState<string>(null);
 
 	const match = useRouteMatch(["/home", "/arenas", "/wallet"]);
 
-	useEffect(() => refetchData(), []);
 	useEffect(() => refreshCrews(), [crewAssets, assetsTemplates, crewConfs]);
 	useEffect(() => refreshWeapons(), [weaponAssets, assetsTemplates, weaponConfs]);
 	useEffect(() => setLoading(!(userInfo && crews && weapons)), [userInfo, crews, weapons]);
 
+	const setEndpoint = (endpoint: string) => {
+		BLOCKCHAIN.ENDPOINT = endpoint;
+		setSelectedEndpoint(endpoint);
+		refetchData();
+	};
 	const refetchData = () => {
 		refetchBalances(true);
 
@@ -367,92 +372,115 @@ function Game(): JSX.Element {
 		<>
 			<div className="page">
 				<div className="main game">
-					{isLoading && <span className="loading-indicator">loading...</span>}
-					{!isLoading && (
+					{!selectedEndpoint && (
 						<>
-							{!userInfo && (
-								<div className="register">
-									<div className="register-inner">
-										<h1>Register an account to start playing</h1>
-										<div className="buttons">
-											<button className="button register-btn" onClick={() => registerAccount()}>
-												Register
-											</button>
-											<button className="button logout-btn" onClick={() => ual.logout()}>
-												Logout
-											</button>
-										</div>
-									</div>
-								</div>
-							)}
-							{userInfo && (
-								<>
-									<div className="topbar">
-										<Logo />
-										<div className="right-side">
-											<div className="balance">
-												<span className="in-game">
-													{isNaN(gameBalance)
-														? "..."
-														: `Game: ${gameBalance.toLocaleString("en", {
-																useGrouping: true,
-																maximumFractionDigits: 4,
-																minimumFractionDigits: 0,
-														  })} ${BLOCKCHAIN.TOKEN_SYMBOL}`}
-												</span>
-												<span className="in-account">
-													{isNaN(accountBalance)
-														? "..."
-														: `Account: ${accountBalance.toLocaleString("en", {
-																useGrouping: true,
-																maximumFractionDigits: 4,
-																minimumFractionDigits: 0,
-														  })} ${BLOCKCHAIN.TOKEN_SYMBOL}`}
-												</span>
-											</div>
-											<span className="account-name">{ual.activeUser.accountName}</span>
-											<button className="button logout-button" onClick={() => ual.logout()}>
-												Logout
-											</button>
-										</div>
-									</div>
+							<div className="endpoint-select">
+								<select defaultValue="none" onChange={e => setEndpoint(e.target.value)}>
+									<option disabled value="none">
+										Select RPC Endpoint
+									</option>
 
-									<div className="window-ui">
-										<div className="center-ui">
-											<div className="center-ui-inner">
-												<div className="controls">
-													<div className="controls-inner">
-														<Link className="button" to="/home">
-															Home
-														</Link>
-														<Link className="button" to="/arenas">
-															Arenas
-														</Link>
-														<Link className="button" to="/wallet">
-															Wallet
-														</Link>
+									<option value="api.wax.alohaeos.com">api.wax.alohaeos.com</option>
+									<option value="api.wax.greeneosio.com">api.wax.greeneosio.com</option>
+									<option value="api.waxsweden.org">api.waxsweden.org</option>
+									<option value="wax.cryptolions.io">wax.cryptolions.io</option>
+									<option value="wax.dapplica.io">wax.dapplica.io</option>
+									<option value="wax.eosphere.io">wax.eosphere.io</option>
+									<option value="wax.pink.gg">wax.pink.gg</option>
+								</select>
+							</div>
+						</>
+					)}
+					{selectedEndpoint && (
+						<>
+							{isLoading && <span className="loading-indicator">loading...</span>}
+							{!isLoading && (
+								<>
+									{!userInfo && (
+										<div className="register">
+											<div className="register-inner">
+												<h1>Register an account to start playing</h1>
+												<div className="buttons">
+													<button className="button register-btn" onClick={() => registerAccount()}>
+														Register
+													</button>
+													<button className="button logout-btn" onClick={() => ual.logout()}>
+														Logout
+													</button>
+												</div>
+											</div>
+										</div>
+									)}
+									{userInfo && (
+										<>
+											<div className="topbar">
+												<Logo />
+												<div className="right-side">
+													<div className="balance">
+														<span className="in-game">
+															{isNaN(gameBalance)
+																? "..."
+																: `Game: ${gameBalance.toLocaleString("en", {
+																		useGrouping: true,
+																		maximumFractionDigits: 4,
+																		minimumFractionDigits: 0,
+																  })} ${BLOCKCHAIN.TOKEN_SYMBOL}`}
+														</span>
+														<span className="in-account">
+															{isNaN(accountBalance)
+																? "..."
+																: `Account: ${accountBalance.toLocaleString("en", {
+																		useGrouping: true,
+																		maximumFractionDigits: 4,
+																		minimumFractionDigits: 0,
+																  })} ${BLOCKCHAIN.TOKEN_SYMBOL}`}
+														</span>
+													</div>
+													<span className="account-name">{ual.activeUser.accountName}</span>
+													<button className="button logout-button" onClick={() => ual.logout()}>
+														Logout
+													</button>
+												</div>
+											</div>
+
+											<div className="window-ui">
+												<div className="center-ui">
+													<div className="center-ui-inner">
+														<div className="controls">
+															<div className="controls-inner">
+																<Link className="button" to="/home">
+																	Home
+																</Link>
+																<Link className="button" to="/arenas">
+																	Arenas
+																</Link>
+																<Link className="button" to="/wallet">
+																	Wallet
+																</Link>
+															</div>
+														</div>
+														<div className="windows">
+															<HomeWindow
+																refreshData={refreshData}
+																showPopup={showPopup}
+																visible={match?.path == "/home"}
+															/>
+															<ArenasWindow
+																refreshData={refreshData}
+																showPopup={showPopup}
+																visible={match?.path == "/arenas"}
+															/>
+															<WalletWindow
+																refreshData={refreshData}
+																showPopup={showPopup}
+																visible={match?.path == "/wallet"}
+															/>
+														</div>
 													</div>
 												</div>
-												<div className="windows">
-													<HomeWindow
-														refreshData={refreshData}
-														showPopup={showPopup}
-														visible={match?.path == "/home"}
-													/>
-													<ArenasWindow
-														refreshData={refreshData}
-														showPopup={showPopup}
-														visible={match?.path == "/arenas"}
-													/>
-													<WalletWindow
-														refreshData={refreshData}
-														showPopup={showPopup}
-														visible={match?.path == "/wallet"}
-													/>
-												</div>
 											</div>
-										</div>
-									</div>
+										</>
+									)}
 								</>
 							)}
 						</>
