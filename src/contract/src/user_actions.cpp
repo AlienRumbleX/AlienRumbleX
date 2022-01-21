@@ -62,6 +62,16 @@ ACTION alienrumblex::enterqueue(const name &user, const name &arena_name,
     auto user_queue = queues.find(user.value);
 
     if (user_queue != queues.end()) {
+        // check if user is not already using those assets in another arena
+        for (auto itr = user_queue->queues.begin(); itr != user_queue->queues.end(); ++itr) {
+            check(itr->minion_id != minion_id,
+                  string("minion " + to_string(minion_id) + " is used in another arena")
+                      .c_str());
+            check(itr->weapon_id != weapon_id,
+                  string("weapon " + to_string(weapon_id) + " is used in another arena")
+                      .c_str());
+        }
+
         auto arena_entry = find_if(user_queue->queues.begin(), user_queue->queues.end(),
                                    [&arena = arena_name](const queue_entry &entry) {
                                        return arena == entry.arena_name;
