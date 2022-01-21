@@ -1,4 +1,3 @@
-import { deserialize, ObjectSchema } from "atomicassets";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useRouteMatch, withRouter } from "react-router-dom";
@@ -6,7 +5,8 @@ import { SignTransactionResponse } from "universal-authenticator-library";
 import BottomBar from "../components/BottomBar";
 import Logo from "../components/Logo";
 import { AppCtx, BLOCKCHAIN, RARITIES, SHINES } from "../constants";
-import { AssetItem, Crew, GameUser, Weapon } from "../types";
+import { AssetItem, AssetTemplate, Crew, CrewConf, GameUser, Weapon, WeaponConf } from "../types";
+import { getStorageItem, setStorageItem } from "../utils";
 import ArenasWindow from "../windows/Arenas";
 import HomeWindow from "../windows/Home";
 import WalletWindow from "../windows/Wallet";
@@ -51,7 +51,20 @@ function Game(): JSX.Element {
 		refetchBalances(true);
 
 		fetchUserCrewsWeapons();
-		fetchAssetsTemplates();
+
+		Promise.all([
+			fetchAssetsTemplates("crew.worlds").then(minions => {
+				setStorageItem<AssetTemplate[]>("crew.worlds.templates", minions, 0);
+				return minions;
+			}),
+			fetchAssetsTemplates("arms.worlds").then(weapons => {
+				setStorageItem<AssetTemplate[]>("arms.worlds.templates", weapons, 0);
+				return weapons;
+			}),
+		]).then(([minions, weapons]) => {
+			const templates = [...minions, ...weapons];
+			setAssetsTemplates(templates);
+		});
 
 		fetchCrewsConfigurations();
 		fetchWeaponsConfigurations();
@@ -126,79 +139,46 @@ function Game(): JSX.Element {
 		setQueue(data.rows);
 	};
 
-	const fetchAssetsTemplates = async (showLoading = false) => {
-		if (showLoading) {
-			setLoading(true);
+	const fetchAssetsTemplates = async (schema: string): Promise<AssetTemplate[]> => {
+		const cache = getStorageItem<AssetTemplate[]>(`${schema}.templates`, null);
+		if (cache) {
+			return cache;
 		}
 
-		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
-			headers: { "content-type": "application/json;charset=UTF-8" },
-			body: JSON.stringify({
-				json: true,
-				code: "atomicassets",
-				scope: BLOCKCHAIN.AA_COLLECTION,
-				table: "templates",
-				limit: 1000,
-			}),
-			method: "POST",
-			mode: "cors",
-			credentials: "omit",
-		});
+		const response = await fetch(
+			`https://wax.api.atomicassets.io/atomicassets/v1/templates?collection_name=alien.worlds&schema_name=${schema}&page=1&limit=200&order=desc&sort=created`,
+			{
+				headers: { "content-type": "application/json;charset=UTF-8" },
+				body: null,
+				method: "GET",
+				mode: "cors",
+				credentials: "omit",
+			},
+		);
 
 		const data = await response.json();
 
-		const crewSchema = ObjectSchema([
-			{ name: "cardid", type: "uint16" },
-			{ name: "name", type: "string" },
-			{ name: "img", type: "image" },
-			{ name: "backimg", type: "image" },
-			{ name: "rarity", type: "string" },
-			{ name: "shine", type: "string" },
-			{ name: "material_grade", type: "uint64" },
-			{ name: "race", type: "string" },
-			{ name: "description", type: "string" },
-			{ name: "element", type: "string" },
-			{ name: "attack", type: "uint8" },
-			{ name: "defense", type: "uint8" },
-			{ name: "movecost", type: "uint8" },
-			{ name: "td_fights", type: "uint16" },
-			{ name: "td_wins", type: "uint16" },
-			{ name: "td_winstreak", type: "uint16" },
-		]);
+		const templates = [...data.data].map<AssetTemplate>(t => ({
+			img: t.immutable_data.img,
+			name: t.immutable_data.name,
+			rarity: t.immutable_data.rarity,
+			shine: t.immutable_data.shine,
+			template_id: t.template_id,
+		}));
 
-		const weaponSchema = ObjectSchema([
-			{ name: "cardid", type: "uint16" },
-			{ name: "name", type: "string" },
-			{ name: "img", type: "image" },
-			{ name: "backimg", type: "image" },
-			{ name: "rarity", type: "string" },
-			{ name: "shine", type: "string" },
-			{ name: "material_grade", type: "uint64" },
-			{ name: "description", type: "string" },
-			{ name: "class", type: "string" },
-			{ name: "attack", type: "uint8" },
-			{ name: "defense", type: "uint8" },
-		]);
-
-		setAssetsTemplates([
-			...data.rows
-				.filter(({ schema_name }) => schema_name == "crew.worlds")
-				.map(({ template_id, immutable_serialized_data }) => ({
-					template_id,
-					...deserialize(new Uint8Array(immutable_serialized_data), crewSchema),
-				})),
-			...data.rows
-				.filter(({ schema_name }) => schema_name == "arms.worlds")
-				.map(({ template_id, immutable_serialized_data }) => ({
-					template_id,
-					...deserialize(new Uint8Array(immutable_serialized_data), weaponSchema),
-				})),
-		]);
+		setStorageItem<AssetTemplate[]>(`${schema}.templates`, data.rows, 0);
+		return templates;
 	};
 
 	const fetchCrewsConfigurations = async (showLoading = false) => {
 		if (showLoading) {
 			setLoading(true);
+		}
+
+		const cache = getStorageItem<CrewConf[]>("crewconf", null);
+		if (cache) {
+			setCrewConfs(cache);
+			return;
 		}
 
 		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
@@ -216,7 +196,7 @@ function Game(): JSX.Element {
 		});
 
 		const data = await response.json();
-
+		setStorageItem<CrewConf[]>("crewconf", data.rows, 0);
 		setCrewConfs(data.rows);
 	};
 
@@ -224,6 +204,13 @@ function Game(): JSX.Element {
 		if (showLoading) {
 			setLoading(true);
 		}
+
+		const cache = getStorageItem<WeaponConf[]>("weaponconf", null);
+		if (cache) {
+			setWeaponConfs(cache);
+			return;
+		}
+
 		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
 			headers: { "content-type": "application/json;charset=UTF-8" },
 			body: JSON.stringify({
@@ -239,7 +226,7 @@ function Game(): JSX.Element {
 		});
 
 		const data = await response.json();
-
+		setStorageItem<WeaponConf[]>("weaponconf", data.rows, 0);
 		setWeaponConfs(data.rows);
 	};
 
@@ -247,6 +234,7 @@ function Game(): JSX.Element {
 		if (showLoading) {
 			setLoading(true);
 		}
+
 		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
 			headers: { "content-type": "application/json;charset=UTF-8" },
 			body: JSON.stringify({
@@ -267,35 +255,41 @@ function Game(): JSX.Element {
 	};
 
 	const fetchUserCrewsWeapons = async () => {
-		const assets: AssetItem[] = await fetchUserAssets();
-		const minions = assets.filter(a => a.collection_name == BLOCKCHAIN.AA_COLLECTION && a.schema_name == "crew.worlds");
-		const weapons = assets.filter(a => a.collection_name == BLOCKCHAIN.AA_COLLECTION && a.schema_name == "arms.worlds");
+		const minionAssets: AssetItem[] = await fetchUserAssets("crew.worlds");
+		const weaponAssets: AssetItem[] = await fetchUserAssets("arms.worlds");
+		const minions = minionAssets.filter(a => a.collection_name == BLOCKCHAIN.AA_COLLECTION && a.schema_name == "crew.worlds");
+		const weapons = weaponAssets.filter(a => a.collection_name == BLOCKCHAIN.AA_COLLECTION && a.schema_name == "arms.worlds");
 		setCrewAssets(minions);
 		setWeaponAssets(weapons);
 	};
 
-	const fetchUserAssets = async (lower?: string) => {
-		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
-			headers: { "content-type": "application/json;charset=UTF-8" },
-			body: JSON.stringify({
-				json: true,
-				code: "atomicassets",
-				scope: ual.activeUser.accountName,
-				table: "assets",
-				lower_bound: lower,
-				limit: 1000,
-			}),
-			method: "POST",
-			mode: "cors",
-			credentials: "omit",
-		});
-
-		const data = await response.json();
-		if (data.more) {
-			return [...data.rows, ...(await fetchUserAssets(data.next_key))];
+	const fetchUserAssets = async (schema: string): Promise<AssetItem[]> => {
+		const cache = getStorageItem<AssetItem[]>(`${schema}.assets`, null);
+		if (cache) {
+			return cache;
 		}
 
-		return data.rows;
+		const response = await fetch(
+			`https://wax.api.atomicassets.io/atomicassets/v1/assets?collection_name=alien.worlds&schema_name=${schema}&owner=${ual.activeUser.accountName}&page=1&limit=500`,
+			{
+				headers: { "content-type": "application/json;charset=UTF-8" },
+				body: null,
+				method: "GET",
+				mode: "cors",
+				credentials: "omit",
+			},
+		);
+
+		const data = await response.json();
+		const assets = [...data.data].map<AssetItem>(a => ({
+			asset_id: a.asset_id,
+			collection_name: a.collection.collection_name,
+			schema_name: a.schema.schema_name,
+			template_id: a.template.template_id,
+		}));
+
+		setStorageItem<AssetItem[]>(`${schema}.assets`, assets, 0);
+		return assets;
 	};
 
 	const checkUserInfo = async (showLoading = false) => {
