@@ -324,11 +324,51 @@ body {
                                 .arenas,
                                 .crews,
                                 .weapons {
-                                    h3 {
-                                        font-size  : 2em;
-                                        padding    : 0 1em;
-                                        color      : var(--bright-white);
-                                        font-weight: normal;
+                                    .section-head {
+                                        padding  : 0 1em;
+                                        margin   : 1em 0;
+                                        display  : flex;
+                                        flex-flow: row wrap;
+
+                                        .title {
+                                            font-size  : 2em;
+                                            color      : var(--bright-white);
+                                            font-weight: normal;
+                                        }
+
+                                        .filters {
+                                            display  : flex;
+                                            flex-flow: row;
+                                            padding  : 0 1em;
+
+                                            .filter {
+                                                display    : flex;
+                                                flex-flow  : row;
+                                                align-items: center;
+                                                padding    : 0 1em;
+
+                                                .name {
+                                                    font-size   : 1.3em;
+                                                    color       : var(--bright-white);
+                                                    font-weight : normal;
+                                                    margin-right: 1em;
+                                                }
+
+                                                .choices {
+                                                    border          : 1px solid var(--color-seven);
+                                                    border-radius   : 8px;
+                                                    padding         : 4px;
+                                                    font-size       : 1.2em;
+                                                    font-family     : 'Mouse Memoirs', cursive;
+                                                    background-color: transparent;
+                                                    color           : var(--bright-white);
+
+                                                    option {
+                                                        background-color: var(--color-five);
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
 
                                     .arena-list,
@@ -620,6 +660,18 @@ body {
                                     .arenas,
                                     .crews,
                                     .weapons {
+                                        .section-head {
+                                            flex-flow: column;
+
+                                            .filters {
+                                                flex-flow: column;
+
+                                                .filter {
+                                                    padding        : 0.6em 0 0 0;
+                                                    justify-content: center;
+                                                }
+                                            }
+                                        }
 
                                         .arena-list,
                                         .crew-list,

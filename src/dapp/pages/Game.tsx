@@ -1,10 +1,11 @@
 import { deserialize, ObjectSchema } from "atomicassets";
+import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useRouteMatch, withRouter } from "react-router-dom";
 import { SignTransactionResponse } from "universal-authenticator-library";
 import BottomBar from "../components/BottomBar";
 import Logo from "../components/Logo";
-import { AppCtx, BLOCKCHAIN } from "../constants";
+import { AppCtx, BLOCKCHAIN, RARITIES, SHINES } from "../constants";
 import { AssetItem, Crew, GameUser, Weapon } from "../types";
 import ArenasWindow from "../windows/Arenas";
 import HomeWindow from "../windows/Home";
@@ -69,7 +70,11 @@ function Game(): JSX.Element {
 			...crewConfs?.find(t => t.template_id == minion.template_id),
 		}));
 
-		setCrews(assets);
+		setCrews(
+			_(assets)
+				.orderBy([a => RARITIES[a.rarity], a => SHINES[a.shine], a => a.attack + a.defense], ["desc", "desc", "desc"])
+				.value(),
+		);
 	};
 
 	const refreshWeapons = () => {
@@ -79,7 +84,11 @@ function Game(): JSX.Element {
 			...weaponConfs?.find(t => t.template_id == weapon.template_id),
 		}));
 
-		setWeapons(assets);
+		setWeapons(
+			_(assets)
+				.orderBy([a => RARITIES[a.rarity], a => SHINES[a.shine], a => a.attack + a.defense], ["desc", "desc", "desc"])
+				.value(),
+		);
 	};
 
 	const refetchBalances = (showLoading = false) => {

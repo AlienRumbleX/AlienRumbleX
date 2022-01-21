@@ -62,6 +62,8 @@ export type AssetTemplate = {
 	name: string;
 	img: string;
 	template_id: number;
+	rarity: string;
+	shine: string;
 };
 
 export type Crew = AssetItem & AssetTemplate & CrewConf;

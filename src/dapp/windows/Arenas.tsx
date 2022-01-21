@@ -8,6 +8,10 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 	const [selectedArena, setSelectedArena] = useState<Arena>(null);
 	const [selectedMinion, setSelectedMinion] = useState<Crew>(null);
 	const [selectedWeapon, setSelectedWeapon] = useState<Weapon>(null);
+	const [selectedWeaponRarity, setSelectedWeaponRarity] = useState<string>("All");
+	const [selectedWeaponShine, setSelectedWeaponShine] = useState<string>("All");
+	const [selectedMinionRarity, setSelectedMinionRarity] = useState<string>("All");
+	const [selectedMinionShine, setSelectedMinionShine] = useState<string>("All");
 
 	const enterQueue = async () => {
 		const res: SignTransactionResponse | Error = await ual.activeUser
@@ -61,7 +65,9 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 									<span className="help">Pick an Arena, a Warrior and a Weapon, and send them to battle</span>
 								</div>
 								<div className="arenas">
-									<h3>Arenas</h3>
+									<div className="section-head">
+										<span className="title">Arenas</span>
+									</div>
 									<div className="arena-list">
 										{arenas?.map(arena => (
 											<div
@@ -112,45 +118,107 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 									</div>
 								</div>
 								<div className="crews">
-									<h3>Crews</h3>
-									<div className="crew-list">
-										{crews?.map(minion => (
-											<div
-												className={["minion", selectedMinion?.asset_id == minion.asset_id && "selected"]
-													.filter(c => !!c)
-													.join(" ")}
-												key={minion.asset_id}
-												onClick={() => setSelectedMinion(minion)}
-											>
-												<img
-													src={`https://ipfs.hivebp.io/thumbnail?hash=${minion.img}`}
-													alt={minion.name}
-													title={minion.name}
-												/>
-												<span className="name">{minion.name}</span>
+									<div className="section-head">
+										<span className="title">Minions</span>
+
+										<div className="filters">
+											<div className="filter">
+												<span className="name">Rarity</span>
+												<select className="choices" onChange={e => setSelectedMinionRarity(e.target.value)}>
+													{["All", "Abundant", "Common", "Rare", "Epic", "Legendary", "Mythical"].map(r => (
+														<option value={r} selected={selectedMinionRarity == r} key={`minion-rarity-${r}`}>
+															{r}
+														</option>
+													))}
+												</select>
 											</div>
-										))}
+											<div className="filter">
+												<span className="name">Shine</span>
+												<select className="choices" onChange={e => setSelectedMinionShine(e.target.value)}>
+													{["All", "Stone", "Gold", "Stardust", "Antimatter", "XDimension"].map(s => (
+														<option value={s} selected={selectedMinionShine == s} key={`minion-shine-${s}`}>
+															{s}
+														</option>
+													))}
+												</select>
+											</div>
+										</div>
+									</div>
+									<div className="crew-list">
+										{crews
+											?.filter(
+												minion =>
+													(selectedMinionRarity == "All" || minion.rarity == selectedMinionRarity) &&
+													(selectedMinionShine == "All" || minion.shine == selectedMinionShine),
+											)
+											?.map(minion => (
+												<div
+													className={["minion", selectedMinion?.asset_id == minion.asset_id && "selected"]
+														.filter(c => !!c)
+														.join(" ")}
+													key={minion.asset_id}
+													onClick={() => setSelectedMinion(minion)}
+												>
+													<img
+														src={`https://ipfs.hivebp.io/thumbnail?hash=${minion.img}`}
+														alt={minion.name}
+														title={minion.name}
+													/>
+													<span className="name">{minion.name}</span>
+												</div>
+											))}
 									</div>
 								</div>
 								<div className="weapons">
-									<h3>Weapons</h3>
-									<div className="weapon-list">
-										{weapons?.map(weapon => (
-											<div
-												className={["weapon", selectedWeapon?.asset_id == weapon.asset_id && "selected"]
-													.filter(c => !!c)
-													.join(" ")}
-												key={weapon.asset_id}
-												onClick={() => setSelectedWeapon(weapon)}
-											>
-												<img
-													src={`https://ipfs.hivebp.io/thumbnail?hash=${weapon.img}`}
-													alt={weapon.name}
-													title={weapon.name}
-												/>
-												<span className="name">{weapon.name}</span>
+									<div className="section-head">
+										<span className="title">Weapons</span>
+
+										<div className="filters">
+											<div className="filter">
+												<span className="name">Rarity</span>
+												<select className="choices" onChange={e => setSelectedWeaponRarity(e.target.value)}>
+													{["All", "Abundant", "Common", "Rare", "Epic", "Legendary", "Mythical"].map(r => (
+														<option value={r} selected={selectedWeaponRarity == r} key={`weapon-rarity-${r}`}>
+															{r}
+														</option>
+													))}
+												</select>
 											</div>
-										))}
+											<div className="filter">
+												<span className="name">Shine</span>
+												<select className="choices" onChange={e => setSelectedWeaponShine(e.target.value)}>
+													{["All", "Stone", "Gold", "Stardust", "Antimatter", "XDimension"].map(s => (
+														<option value={s} selected={selectedWeaponShine == s} key={`weapon-shine-${s}`}>
+															{s}
+														</option>
+													))}
+												</select>
+											</div>
+										</div>
+									</div>
+									<div className="weapon-list">
+										{weapons
+											?.filter(
+												weapon =>
+													(selectedWeaponRarity == "All" || weapon.rarity == selectedWeaponRarity) &&
+													(selectedWeaponShine == "All" || weapon.shine == selectedWeaponShine),
+											)
+											?.map(weapon => (
+												<div
+													className={["weapon", selectedWeapon?.asset_id == weapon.asset_id && "selected"]
+														.filter(c => !!c)
+														.join(" ")}
+													key={weapon.asset_id}
+													onClick={() => setSelectedWeapon(weapon)}
+												>
+													<img
+														src={`https://ipfs.hivebp.io/thumbnail?hash=${weapon.img}`}
+														alt={weapon.name}
+														title={weapon.name}
+													/>
+													<span className="name">{weapon.name}</span>
+												</div>
+											))}
 									</div>
 								</div>
 								<div className="controls">

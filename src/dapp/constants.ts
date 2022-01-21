@@ -3,6 +3,23 @@ import React from "react";
 import { Anchor } from "ual-anchor";
 import { Arena, AssetTemplate, Crew, CrewConf, GameUser, UAL, UserQueueEntry, Weapon, WeaponConf } from "./types";
 
+export const RARITIES = {
+	Abundant: 1,
+	Common: 2,
+	Rare: 3,
+	Epic: 4,
+	Legendary: 5,
+	Mythical: 6,
+};
+
+export const SHINES = {
+	Stone: 1,
+	Gold: 2,
+	Stardust: 3,
+	Antimatter: 4,
+	XDimension: 5,
+};
+
 export interface AppContextInterface {
 	ual: UAL;
 
