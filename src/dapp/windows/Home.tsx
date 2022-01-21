@@ -11,7 +11,7 @@ function HomeWindow(props: WindowProps): JSX.Element {
 	return (
 		<>
 			<div className="window" style={{ display: props.visible ? "" : "none" }}>
-				{crews && weapons && (
+				{crews && weapons && queue && userInfo && (
 					<>
 						{(crews.length == 0 || weapons.length == 0) && (
 							<>

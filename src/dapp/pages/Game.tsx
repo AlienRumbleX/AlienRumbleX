@@ -17,6 +17,8 @@ function Game(): JSX.Element {
 		accountBalance,
 		gameBalance,
 		userInfo,
+		crews,
+		weapons,
 		setAccountBalance,
 		setGameBalance,
 		setUserInfo,
@@ -43,6 +45,7 @@ function Game(): JSX.Element {
 	useEffect(() => refetchData(), []);
 	useEffect(() => refreshCrews(), [crewAssets, assetsTemplates, crewConfs]);
 	useEffect(() => refreshWeapons(), [weaponAssets, assetsTemplates, weaponConfs]);
+	useEffect(() => setLoading(!(userInfo && crews && weapons)), [userInfo, crews, weapons]);
 
 	const refetchData = () => {
 		refetchBalances(true);
@@ -64,6 +67,10 @@ function Game(): JSX.Element {
 	};
 
 	const refreshCrews = () => {
+		if (!(crewAssets && assetsTemplates && crewConfs)) {
+			return;
+		}
+
 		const assets = crewAssets?.map<Crew>(minion => ({
 			...minion,
 			...assetsTemplates?.find(t => t.template_id == minion.template_id),
@@ -78,6 +85,10 @@ function Game(): JSX.Element {
 	};
 
 	const refreshWeapons = () => {
+		if (!(weaponAssets && assetsTemplates && weaponConfs)) {
+			return;
+		}
+
 		const assets = weaponAssets?.map<Weapon>(weapon => ({
 			...weapon,
 			...assetsTemplates?.find(t => t.template_id == weapon.template_id),
@@ -183,7 +194,6 @@ function Game(): JSX.Element {
 					...deserialize(new Uint8Array(immutable_serialized_data), weaponSchema),
 				})),
 		]);
-		setLoading(false);
 	};
 
 	const fetchCrewsConfigurations = async (showLoading = false) => {
@@ -208,7 +218,6 @@ function Game(): JSX.Element {
 		const data = await response.json();
 
 		setCrewConfs(data.rows);
-		setLoading(false);
 	};
 
 	const fetchWeaponsConfigurations = async (showLoading = false) => {
@@ -232,7 +241,6 @@ function Game(): JSX.Element {
 		const data = await response.json();
 
 		setWeaponConfs(data.rows);
-		setLoading(false);
 	};
 
 	const fetchArenas = async (showLoading = false) => {
@@ -256,7 +264,6 @@ function Game(): JSX.Element {
 		const data = await response.json();
 
 		setArenas(data.rows);
-		setLoading(false);
 	};
 
 	const fetchUserCrewsWeapons = async () => {
@@ -315,8 +322,6 @@ function Game(): JSX.Element {
 
 		setUserInfo(data?.rows[0]);
 		setGameBalance((data?.rows.length && parseFloat(data?.rows[0]?.balance?.quantity)) || 0);
-
-		setLoading(false);
 	};
 
 	const fetchAccountBalance = async () => {
