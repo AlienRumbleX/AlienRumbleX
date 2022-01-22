@@ -45,13 +45,14 @@ function Game(): JSX.Element {
 
 	useEffect(() => refreshCrews(), [crewAssets, assetsTemplates, crewConfs]);
 	useEffect(() => refreshWeapons(), [weaponAssets, assetsTemplates, weaponConfs]);
-	useEffect(() => setLoading(!(userInfo && crews && weapons)), [userInfo, crews, weapons]);
+	useEffect(() => setLoading(!(crews && weapons)), [userInfo, crews, weapons]);
 
 	const setEndpoint = (endpoint: string) => {
 		BLOCKCHAIN.ENDPOINT = endpoint;
 		setSelectedEndpoint(endpoint);
 		refetchData();
 	};
+
 	const refetchData = () => {
 		refetchBalances(true);
 
@@ -269,7 +270,7 @@ function Game(): JSX.Element {
 	};
 
 	const fetchUserAssets = async (schema: string): Promise<AssetItem[]> => {
-		const cache = getStorageItem<AssetItem[]>(`${schema}.assets`, null);
+		const cache = getStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, null);
 		if (cache) {
 			return cache;
 		}
@@ -293,7 +294,7 @@ function Game(): JSX.Element {
 			template_id: a.template.template_id,
 		}));
 
-		setStorageItem<AssetItem[]>(`${schema}.assets`, assets, 0);
+		setStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, assets, 0);
 		return assets;
 	};
 
