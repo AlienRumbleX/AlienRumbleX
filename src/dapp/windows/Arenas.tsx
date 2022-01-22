@@ -67,6 +67,44 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 								<div className="message">
 									<span className="help">Pick an Arena, a Warrior and a Weapon, and send them to battle</span>
 								</div>
+								{(selectedMinion || selectedWeapon) && (
+									<div className="selection">
+										<div className="section-head">
+											<span className="title">Selected and ready for battle</span>
+										</div>
+										<div className="weapon-list crew-list">
+											{selectedMinion && (
+												<div className="minion">
+													<img
+														src={`https://ipfs.hivebp.io/thumbnail?hash=${selectedMinion.img}`}
+														alt={selectedMinion.name}
+														title={selectedMinion.name}
+													/>
+													<span className="name">{selectedMinion.name}</span>
+												</div>
+											)}
+											{selectedWeapon && (
+												<div className="weapon">
+													<img
+														src={`https://ipfs.hivebp.io/thumbnail?hash=${selectedWeapon.img}`}
+														alt={selectedWeapon.name}
+														title={selectedWeapon.name}
+													/>
+													<span className="name">{selectedWeapon.name}</span>
+												</div>
+											)}
+										</div>
+									</div>
+								)}
+								<div className="controls">
+									<button
+										className="button enter-battle"
+										disabled={!(selectedArena && selectedMinion && selectedWeapon)}
+										onClick={() => enterQueue()}
+									>
+										Enter Battle
+									</button>
+								</div>
 								<div className="arenas">
 									<div className="section-head">
 										<span className="title">Arenas</span>
@@ -295,15 +333,6 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 												</div>
 											))}
 									</div>
-								</div>
-								<div className="controls">
-									<button
-										className="button enter-battle"
-										disabled={!(selectedArena && selectedMinion && selectedWeapon)}
-										onClick={() => enterQueue()}
-									>
-										Enter Battle
-									</button>
 								</div>
 							</>
 						)}
