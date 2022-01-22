@@ -86,7 +86,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											}}
 											onClick={() => minionsRef.current.scrollIntoView({ behavior: "smooth" })}
 										>
-											Warrior
+											Minion
 										</span>
 										<span>and a</span>
 										<span
