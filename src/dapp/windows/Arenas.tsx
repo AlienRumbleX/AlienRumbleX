@@ -14,6 +14,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 	const [selectedMinionRarity, setSelectedMinionRarity] = useState<string>("All");
 	const [selectedMinionShine, setSelectedMinionShine] = useState<string>("All");
 	const [selectedMinionElement, setSelectedMinionElement] = useState<string>("All");
+	const [selectedAreaEntry, setSelectedArenaEntry] = useState<string>("All");
 
 	const enterQueue = async () => {
 		const res: SignTransactionResponse | Error = await ual.activeUser
@@ -69,54 +70,80 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 								<div className="arenas">
 									<div className="section-head">
 										<span className="title">Arenas</span>
+
+										<div className="filters">
+											<div className="filter">
+												<span className="name">Entered</span>
+												<select
+													className="choices"
+													onChange={e => setSelectedArenaEntry(e.target.value)}
+													defaultValue={selectedAreaEntry}
+												>
+													{["All", "Yes", "No"].map(r => (
+														<option value={r} key={`arena-entered-${r}`}>
+															{r}
+														</option>
+													))}
+												</select>
+											</div>
+										</div>
 									</div>
 									<div className="arena-list">
-										{arenas?.map(arena => (
-											<div
-												className={[
-													"arena",
-													gameBalance < parseFloat(arena.cost.quantity) && "disabled",
-													queue
+										{arenas
+											?.filter(
+												arena =>
+													selectedAreaEntry == "All" ||
+													!!queue
 														?.find(e => e.player == ual.activeUser.accountName)
-														?.queues?.find(e => e.arena_name == arena.name) && "entered",
-													selectedArena?.name == arena.name && "selected",
-												]
-													.filter(c => !!c)
-													.join(" ")}
-												title={[
-													arena.name,
-													gameBalance < parseFloat(arena.cost.quantity) && "Insufficient balance to enter",
-													queue
-														?.find(e => e.player == ual.activeUser.accountName)
-														?.queues?.find(e => e.arena_name == arena.name) &&
-														"You can't enter the same arena twice",
-												]
-													.filter(t => !!t)
-													.join("\n")}
-												key={arena.name}
-												onClick={() =>
-													gameBalance < parseFloat(arena.cost.quantity) ||
-													queue
-														?.find(e => e.player == ual.activeUser.accountName)
-														?.queues?.find(e => e.arena_name == arena.name)
-														? void 0
-														: setSelectedArena(arena)
-												}
-											>
-												<span className="name">{arena.name}</span>
-												<span className="cost">{`${parseFloat(arena.cost.quantity).toLocaleString("en", {
-													useGrouping: true,
-													maximumFractionDigits: 4,
-													minimumFractionDigits: 0,
-												})} ${BLOCKCHAIN.TOKEN_SYMBOL}`}</span>
-												<span className="fee">{(arena.fee / 100).toLocaleString("en", { style: "percent" })}</span>
-												<span className="players">
-													{`${
-														queue?.flatMap(e => e.queues)?.filter(e => e.arena_name == arena.name)?.length || 0
-													} warrior(s) waiting...`}
-												</span>
-											</div>
-										))}
+														?.queues?.find(e => e.arena_name == arena.name) ==
+														(selectedAreaEntry == "Yes"),
+											)
+											?.map(arena => (
+												<div
+													className={[
+														"arena",
+														gameBalance < parseFloat(arena.cost.quantity) && "disabled",
+														queue
+															?.find(e => e.player == ual.activeUser.accountName)
+															?.queues?.find(e => e.arena_name == arena.name) && "entered",
+														selectedArena?.name == arena.name && "selected",
+													]
+														.filter(c => !!c)
+														.join(" ")}
+													title={[
+														arena.name,
+														gameBalance < parseFloat(arena.cost.quantity) && "Insufficient balance to enter",
+														queue
+															?.find(e => e.player == ual.activeUser.accountName)
+															?.queues?.find(e => e.arena_name == arena.name) &&
+															"You can't enter the same arena twice",
+													]
+														.filter(t => !!t)
+														.join("\n")}
+													key={arena.name}
+													onClick={() =>
+														gameBalance < parseFloat(arena.cost.quantity) ||
+														queue
+															?.find(e => e.player == ual.activeUser.accountName)
+															?.queues?.find(e => e.arena_name == arena.name)
+															? void 0
+															: setSelectedArena(arena)
+													}
+												>
+													<span className="name">{arena.name}</span>
+													<span className="cost">{`${parseFloat(arena.cost.quantity).toLocaleString("en", {
+														useGrouping: true,
+														maximumFractionDigits: 4,
+														minimumFractionDigits: 0,
+													})} ${BLOCKCHAIN.TOKEN_SYMBOL}`}</span>
+													<span className="fee">{(arena.fee / 100).toLocaleString("en", { style: "percent" })}</span>
+													<span className="players">
+														{`${
+															queue?.flatMap(e => e.queues)?.filter(e => e.arena_name == arena.name)?.length || 0
+														} warrior(s) waiting...`}
+													</span>
+												</div>
+											))}
 									</div>
 								</div>
 								<div className="crews">
