@@ -160,6 +160,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 									</div>
 									<div className="arena-list">
 										{arenas
+											?.sort((a, b) => parseFloat(a.cost.quantity) - parseFloat(b.cost.quantity))
 											?.filter(
 												arena =>
 													selectedAreaEntry == "All" ||
