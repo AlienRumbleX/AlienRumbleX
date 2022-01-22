@@ -129,6 +129,29 @@ body {
     }
 }
 
+.scrolltop {
+    background-color: #00000066;
+    border          : 1px solid #ffffff16;
+    border-radius   : 8px;
+    bottom          : 1em;
+    color           : var(--bright-white);
+    font-family     : 'Fredoka One', cursive;
+    font-size       : 2.4em;
+    height          : 1em;
+    line-height     : 1em;
+    position        : fixed;
+    right           : 1em;
+    text-align      : center;
+    width           : 1em;
+    cursor          : pointer;
+    display         : none;
+
+    &.visible {
+        display   : block;
+        transition: all 1s ease;
+    }
+}
+
 .page {
     display  : flex;
     flex-flow: column;
@@ -661,6 +684,12 @@ body {
             font-size : 1.2em;
             text-align: center;
         }
+    }
+
+    .scrolltop {
+        bottom   : 0.8em;
+        right    : 0.8em;
+        font-size: 1.6em;
     }
 
     .page {

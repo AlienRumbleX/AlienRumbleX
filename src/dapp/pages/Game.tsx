@@ -505,6 +505,12 @@ function Game(): JSX.Element {
 					<span className="message">{popupMessage}</span>
 				</div>
 			)}
+			<div
+				className={`scrolltop ${document.documentElement.scrollTop > 0 ? "visible" : "invisible"}`}
+				onClick={() => document.documentElement.scrollTo({ top: 0, behavior: "smooth" })}
+			>
+				&#94;
+			</div>
 		</>
 	);
 }
