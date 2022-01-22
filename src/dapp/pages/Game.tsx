@@ -1,3 +1,4 @@
+import axios from "axios";
 import _ from "lodash";
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useRouteMatch, withRouter } from "react-router-dom";
@@ -126,22 +127,13 @@ function Game(): JSX.Element {
 	};
 
 	const refreshQueue = async () => {
-		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
-			headers: { "content-type": "application/json;charset=UTF-8" },
-			body: JSON.stringify({
-				json: true,
-				code: BLOCKCHAIN.DAPP_CONTRACT,
-				scope: BLOCKCHAIN.DAPP_CONTRACT,
-				table: "queues",
-				limit: 1000,
-			}),
-			method: "POST",
-			mode: "cors",
-			credentials: "omit",
-		});
+		const response = await axios.post(
+			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			{ json: true, code: BLOCKCHAIN.DAPP_CONTRACT, scope: BLOCKCHAIN.DAPP_CONTRACT, table: "queues", limit: 1000 },
+			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
+		);
 
-		const data = await response.json();
-		setQueue(data.rows);
+		setQueue(response.data.rows);
 	};
 
 	const fetchAssetsTemplates = async (schema: string): Promise<AssetTemplate[]> => {
@@ -150,20 +142,12 @@ function Game(): JSX.Element {
 			return cache;
 		}
 
-		const response = await fetch(
+		const response = await axios.get(
 			`https://wax.api.atomicassets.io/atomicassets/v1/templates?collection_name=alien.worlds&schema_name=${schema}&page=1&limit=200&order=desc&sort=created`,
-			{
-				headers: { "content-type": "application/json;charset=UTF-8" },
-				body: null,
-				method: "GET",
-				mode: "cors",
-				credentials: "omit",
-			},
+			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
 		);
 
-		const data = await response.json();
-
-		const templates = [...data.data].map<AssetTemplate>(t => ({
+		const templates = [...response.data.data].map<AssetTemplate>(t => ({
 			img: t.immutable_data.img,
 			name: t.immutable_data.name,
 			rarity: t.immutable_data.rarity,
@@ -171,7 +155,7 @@ function Game(): JSX.Element {
 			template_id: t.template_id,
 		}));
 
-		setStorageItem<AssetTemplate[]>(`${schema}.templates`, data.rows, 0);
+		setStorageItem<AssetTemplate[]>(`${schema}.templates`, templates, 0);
 		return templates;
 	};
 
@@ -186,23 +170,14 @@ function Game(): JSX.Element {
 			return;
 		}
 
-		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
-			headers: { "content-type": "application/json;charset=UTF-8" },
-			body: JSON.stringify({
-				json: true,
-				code: BLOCKCHAIN.DAPP_CONTRACT,
-				scope: BLOCKCHAIN.DAPP_CONTRACT,
-				table: "crewconf",
-				limit: 1000,
-			}),
-			method: "POST",
-			mode: "cors",
-			credentials: "omit",
-		});
+		const response = await axios.post(
+			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			{ json: true, code: BLOCKCHAIN.DAPP_CONTRACT, scope: BLOCKCHAIN.DAPP_CONTRACT, table: "crewconf", limit: 1000 },
+			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
+		);
 
-		const data = await response.json();
-		setStorageItem<CrewConf[]>("crewconf", data.rows, 0);
-		setCrewConfs(data.rows);
+		setStorageItem<CrewConf[]>("crewconf", response.data.rows, 0);
+		setCrewConfs(response.data.rows);
 	};
 
 	const fetchWeaponsConfigurations = async (showLoading = false) => {
@@ -216,23 +191,14 @@ function Game(): JSX.Element {
 			return;
 		}
 
-		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
-			headers: { "content-type": "application/json;charset=UTF-8" },
-			body: JSON.stringify({
-				json: true,
-				code: BLOCKCHAIN.DAPP_CONTRACT,
-				scope: BLOCKCHAIN.DAPP_CONTRACT,
-				table: "weaponconf",
-				limit: 1000,
-			}),
-			method: "POST",
-			mode: "cors",
-			credentials: "omit",
-		});
+		const response = await axios.post(
+			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			{ json: true, code: BLOCKCHAIN.DAPP_CONTRACT, scope: BLOCKCHAIN.DAPP_CONTRACT, table: "weaponconf", limit: 1000 },
+			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
+		);
 
-		const data = await response.json();
-		setStorageItem<WeaponConf[]>("weaponconf", data.rows, 0);
-		setWeaponConfs(data.rows);
+		setStorageItem<WeaponConf[]>("weaponconf", response.data.rows, 0);
+		setWeaponConfs(response.data.rows);
 	};
 
 	const fetchArenas = async (showLoading = false) => {
@@ -240,23 +206,13 @@ function Game(): JSX.Element {
 			setLoading(true);
 		}
 
-		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
-			headers: { "content-type": "application/json;charset=UTF-8" },
-			body: JSON.stringify({
-				json: true,
-				code: BLOCKCHAIN.DAPP_CONTRACT,
-				scope: BLOCKCHAIN.DAPP_CONTRACT,
-				table: "arenas",
-				limit: 1000,
-			}),
-			method: "POST",
-			mode: "cors",
-			credentials: "omit",
-		});
+		const response = await axios.post(
+			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			{ json: true, code: BLOCKCHAIN.DAPP_CONTRACT, scope: BLOCKCHAIN.DAPP_CONTRACT, table: "arenas", limit: 1000 },
+			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
+		);
 
-		const data = await response.json();
-
-		setArenas(data.rows);
+		setArenas(response.data.rows);
 	};
 
 	const fetchUserCrewsWeapons = async () => {
@@ -274,19 +230,12 @@ function Game(): JSX.Element {
 			return cache;
 		}
 
-		const response = await fetch(
+		const response = await axios.get(
 			`https://wax.api.atomicassets.io/atomicassets/v1/assets?collection_name=alien.worlds&schema_name=${schema}&owner=${ual.activeUser.accountName}&page=1&limit=500`,
-			{
-				headers: { "content-type": "application/json;charset=UTF-8" },
-				body: null,
-				method: "GET",
-				mode: "cors",
-				credentials: "omit",
-			},
+			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
 		);
 
-		const data = await response.json();
-		const assets = [...data.data].map<AssetItem>(a => ({
+		const assets = [...response.data.data].map<AssetItem>(a => ({
 			asset_id: a.asset_id,
 			collection_name: a.collection.collection_name,
 			schema_name: a.schema.schema_name,
@@ -301,9 +250,9 @@ function Game(): JSX.Element {
 		if (showLoading) {
 			setLoading(true);
 		}
-		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`, {
-			headers: { "content-type": "application/json;charset=UTF-8" },
-			body: JSON.stringify({
+		const response = await axios.post(
+			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			{
 				json: true,
 				code: BLOCKCHAIN.DAPP_CONTRACT,
 				scope: BLOCKCHAIN.DAPP_CONTRACT,
@@ -311,29 +260,24 @@ function Game(): JSX.Element {
 				lower_bound: ual.activeUser.accountName,
 				upper_bound: ual.activeUser.accountName,
 				limit: 1,
-			}),
-			method: "POST",
-			mode: "cors",
-			credentials: "omit",
-		});
+			},
+			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
+		);
 
-		const data: { rows: GameUser[] } = await response.json();
+		const data: { rows: GameUser[] } = response.data;
 
 		setUserInfo(data?.rows[0]);
 		setGameBalance((data?.rows.length && parseFloat(data?.rows[0]?.balance?.quantity)) || 0);
 	};
 
 	const fetchAccountBalance = async () => {
-		const response = await fetch(`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_currency_balance`, {
-			headers: { "content-type": "application/json;charset=UTF-8" },
-			body: JSON.stringify({ code: BLOCKCHAIN.TOKEN_CONTRACT, account: ual.activeUser.accountName, symbol: BLOCKCHAIN.TOKEN_SYMBOL }),
-			method: "POST",
-			mode: "cors",
-			credentials: "omit",
-		});
+		const response = await axios.post(
+			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_currency_balance`,
+			{ code: BLOCKCHAIN.TOKEN_CONTRACT, account: ual.activeUser.accountName, symbol: BLOCKCHAIN.TOKEN_SYMBOL },
+			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
+		);
 
-		const data = await response.json();
-		setAccountBalance(parseFloat(data[0]) || 0);
+		setAccountBalance(parseFloat(response.data[0]) || 0);
 	};
 
 	const registerAccount = async () => {

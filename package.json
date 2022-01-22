@@ -17,6 +17,7 @@
 	"dependencies": {
 		"@eosdacio/ual-wax": "^1.5.1",
 		"atomicassets": "^1.4.2",
+		"axios": "^0.25.0",
 		"lodash": "^4.17.21",
 		"react": "^17.0.2",
 		"react-countdown": "^2.3.2",
