@@ -274,17 +274,34 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											)
 											?.map(minion => (
 												<div
-													className={["minion", selectedMinion?.asset_id == minion.asset_id && "selected"]
+													className={[
+														"minion",
+														queue
+															?.find(e => e.player == ual.activeUser.accountName)
+															?.queues?.find(e => e.minion_id == minion.asset_id) && "used",
+														selectedMinion?.asset_id == minion.asset_id && "selected",
+													]
 														.filter(c => !!c)
 														.join(" ")}
 													key={minion.asset_id}
-													onClick={() => setSelectedMinion(minion)}
+													onClick={() =>
+														queue
+															?.find(e => e.player == ual.activeUser.accountName)
+															?.queues?.find(e => e.minion_id == minion.asset_id)
+															? void 0
+															: setSelectedMinion(minion)
+													}
+													title={[
+														minion.name,
+														queue
+															?.find(e => e.player == ual.activeUser.accountName)
+															?.queues?.find(e => e.minion_id == minion.asset_id) &&
+															"This minion is used in another arena",
+													]
+														.filter(t => !!t)
+														.join("\n")}
 												>
-													<img
-														src={`https://ipfs.hivebp.io/thumbnail?hash=${minion.img}`}
-														alt={minion.name}
-														title={minion.name}
-													/>
+													<img src={`https://ipfs.hivebp.io/thumbnail?hash=${minion.img}`} alt={minion.name} />
 													<span className="name">{minion.name}</span>
 												</div>
 											))}
@@ -349,17 +366,34 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											)
 											?.map(weapon => (
 												<div
-													className={["weapon", selectedWeapon?.asset_id == weapon.asset_id && "selected"]
+													className={[
+														"weapon",
+														queue
+															?.find(e => e.player == ual.activeUser.accountName)
+															?.queues?.find(e => e.weapon_id == weapon.asset_id) && "used",
+														selectedWeapon?.asset_id == weapon.asset_id && "selected",
+													]
 														.filter(c => !!c)
 														.join(" ")}
 													key={weapon.asset_id}
-													onClick={() => setSelectedWeapon(weapon)}
+													onClick={() =>
+														queue
+															?.find(e => e.player == ual.activeUser.accountName)
+															?.queues?.find(e => e.weapon_id == weapon.asset_id)
+															? void 0
+															: setSelectedWeapon(weapon)
+													}
+													title={[
+														weapon.name,
+														queue
+															?.find(e => e.player == ual.activeUser.accountName)
+															?.queues?.find(e => e.weapon_id == weapon.asset_id) &&
+															"This weapon is used in another arena",
+													]
+														.filter(t => !!t)
+														.join("\n")}
 												>
-													<img
-														src={`https://ipfs.hivebp.io/thumbnail?hash=${weapon.img}`}
-														alt={weapon.name}
-														title={weapon.name}
-													/>
+													<img src={`https://ipfs.hivebp.io/thumbnail?hash=${weapon.img}`} alt={weapon.name} />
 													<span className="name">{weapon.name}</span>
 												</div>
 											))}
