@@ -1,10 +1,13 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { SignTransactionResponse } from "universal-authenticator-library";
 import { AppCtx, BLOCKCHAIN } from "../constants";
 import { Arena, Crew, Weapon, WindowProps } from "../types";
 
 function ArenasWindow(props: WindowProps): JSX.Element {
 	const { ual, crews, weapons, arenas, queue, gameBalance, userInfo } = useContext(AppCtx);
+	const arenasRef = useRef<HTMLDivElement>(null);
+	const minionsRef = useRef<HTMLDivElement>(null);
+	const weaponsRef = useRef<HTMLDivElement>(null);
 	const [selectedArena, setSelectedArena] = useState<Arena>(null);
 	const [selectedMinion, setSelectedMinion] = useState<Crew>(null);
 	const [selectedWeapon, setSelectedWeapon] = useState<Weapon>(null);
@@ -65,7 +68,35 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 						{crews.length > 0 && weapons.length > 0 && (
 							<>
 								<div className="message">
-									<span className="help">Pick an Arena, a Warrior and a Weapon, and send them to battle</span>
+									<span className="help">
+										<span>Pick an</span>
+										<span
+											style={{ cursor: "pointer", marginLeft: "0.2em", color: "var(--color-eight)" }}
+											onClick={() => arenasRef.current.scrollIntoView({ behavior: "smooth" })}
+										>
+											Arena
+										</span>
+										<span>, a</span>
+										<span
+											style={{
+												cursor: "pointer",
+												marginLeft: "0.2em",
+												marginRight: "0.2em",
+												color: "var(--color-eight)",
+											}}
+											onClick={() => minionsRef.current.scrollIntoView({ behavior: "smooth" })}
+										>
+											Warrior
+										</span>
+										<span>and a</span>
+										<span
+											style={{ cursor: "pointer", marginLeft: "0.2em", color: "var(--color-eight)" }}
+											onClick={() => weaponsRef.current.scrollIntoView({ behavior: "smooth" })}
+										>
+											Weapon
+										</span>
+										<span>, and send them to battle</span>
+									</span>
 								</div>
 								{(selectedMinion || selectedWeapon) && (
 									<div className="selection">
@@ -105,7 +136,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 										Enter Battle
 									</button>
 								</div>
-								<div className="arenas">
+								<div className="arenas" ref={arenasRef}>
 									<div className="section-head">
 										<span className="title">Arenas</span>
 
@@ -184,7 +215,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											))}
 									</div>
 								</div>
-								<div className="crews">
+								<div className="crews" ref={minionsRef}>
 									<div className="section-head">
 										<span className="title">Minions</span>
 
@@ -259,7 +290,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											))}
 									</div>
 								</div>
-								<div className="weapons">
+								<div className="weapons" ref={weaponsRef}>
 									<div className="section-head">
 										<span className="title">Weapons</span>
 
