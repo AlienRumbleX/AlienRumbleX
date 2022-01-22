@@ -374,7 +374,18 @@ function Game(): JSX.Element {
 				<div className="main game">
 					{!selectedEndpoint && (
 						<>
+							<div className="topbar">
+								<Logo />
+								<div className="right-side">
+									<span className="account-name">{ual.activeUser.accountName}</span>
+									<button className="button logout-button" onClick={() => ual.logout()}>
+										Logout
+									</button>
+								</div>
+							</div>
+
 							<div className="endpoint-select">
+								<span className="rpc-message">Please choose a WAX endpoint to connect to</span>
 								<select defaultValue="none" onChange={e => setEndpoint(e.target.value)}>
 									<option disabled value="none">
 										Select RPC Endpoint
