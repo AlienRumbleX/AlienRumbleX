@@ -244,7 +244,10 @@ ACTION alienrumblex::logwinner(const uint64_t &battle_id, const name &winner) {
 
     auto warrior_count = distance(battle->players.cbegin(), battle->players.cend());
 
-    battles.modify(battle, same_payer, [&](auto &row) { row.winner = winner; });
+    battles.modify(battle, same_payer, [&](auto &row) {
+        row.winner = winner;
+        row.timestamp = time_point_sec(current_time_point());
+    });
 
     // calculate the prize amount
     auto percentage = (100 - arena->fee) / 100.0f;

@@ -107,6 +107,7 @@ CONTRACT alienrumblex : public contract {
         name arena_name;
         vector<name> players;
         name winner;
+        time_point_sec timestamp;
 
         auto primary_key() const {
             return battle_id;
