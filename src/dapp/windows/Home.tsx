@@ -28,7 +28,9 @@ function HomeWindow(props: WindowProps): JSX.Element {
 							<>
 								<div className="message">
 									<span className="help">What are you waiting for ?</span>
-									<span className="help">Pick your warrior and send them to battle</span>
+									<span className="help">
+										Deposit some TLM to your in-game account, Pick your minion and weapon and send them to battle
+									</span>
 
 									<button className="button">
 										<Link to="/arenas">Choose Arena</Link>
