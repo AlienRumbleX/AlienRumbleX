@@ -46,7 +46,7 @@ function Game(): JSX.Element {
 
 	useEffect(() => refreshCrews(), [crewAssets, assetsTemplates, crewConfs]);
 	useEffect(() => refreshWeapons(), [weaponAssets, assetsTemplates, weaponConfs]);
-	useEffect(() => setLoading(!(crews && weapons)), [userInfo, crews, weapons]);
+	useEffect(() => setLoading(!((userInfo || userInfo === false) && crews && weapons)), [userInfo, crews, weapons]);
 
 	const setEndpoint = (endpoint: string) => {
 		BLOCKCHAIN.ENDPOINT = endpoint;
@@ -267,7 +267,7 @@ function Game(): JSX.Element {
 
 		const data: { rows: GameUser[] } = response.data;
 
-		setUserInfo(data?.rows[0]);
+		setUserInfo(data?.rows[0] || false);
 		setGameBalance((data?.rows.length && parseFloat(data?.rows[0]?.balance?.quantity)) || 0);
 	};
 
@@ -352,7 +352,7 @@ function Game(): JSX.Element {
 							{isLoading && <span className="loading-indicator">loading...</span>}
 							{!isLoading && (
 								<>
-									{!userInfo && (
+									{userInfo === false && (
 										<div className="register">
 											<div className="register-inner">
 												<h1>Register an account to start playing</h1>

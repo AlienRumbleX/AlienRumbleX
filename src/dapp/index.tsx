@@ -39,7 +39,7 @@ function AlienRumbleX(): JSX.Element {
 export default function App(props: React.PropsWithChildren<{ ual?: UAL }>): JSX.Element {
 	const [accountBalance, setAccountBalance] = useState<number>(NaN);
 	const [gameBalance, setGameBalance] = useState<number>(NaN);
-	const [userInfo, setUserInfo] = useState<GameUser>(null);
+	const [userInfo, setUserInfo] = useState<GameUser | false>(null);
 
 	const [crewConfs, setCrewConfs] = useState<CrewConf[]>(null);
 	const [weaponConfs, setWeaponConfs] = useState<WeaponConf[]>(null);

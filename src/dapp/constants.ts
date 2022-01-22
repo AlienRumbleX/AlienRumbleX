@@ -29,8 +29,8 @@ export interface AppContextInterface {
 	gameBalance: number;
 	setGameBalance: (balance: number) => void;
 
-	userInfo: GameUser;
-	setUserInfo: (info: GameUser) => void;
+	userInfo: GameUser | false;
+	setUserInfo: (info: GameUser | false) => void;
 
 	crewConfs: CrewConf[];
 	setCrewConfs: (crews: CrewConf[]) => void;
