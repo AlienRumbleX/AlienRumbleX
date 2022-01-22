@@ -46,6 +46,9 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 			props.showPopup("error", res.message);
 		} else {
 			props.showPopup("success", "Successfully entered the arena");
+			setSelectedArena(null);
+			setSelectedMinion(null);
+			setSelectedWeapon(null);
 			props.refreshData();
 		}
 	};
