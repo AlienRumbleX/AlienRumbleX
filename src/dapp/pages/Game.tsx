@@ -243,7 +243,7 @@ function Game(): JSX.Element {
 			template_id: a.template.template_id,
 		}));
 
-		setStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, assets, 0);
+		setStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, assets, 1800);
 		return assets;
 	};
 
