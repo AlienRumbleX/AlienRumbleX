@@ -41,12 +41,25 @@ function Game(): JSX.Element {
 	const [crewAssets, setCrewAssets] = useState<AssetItem[]>(null);
 	const [weaponAssets, setWeaponAssets] = useState<AssetItem[]>(null);
 	const [selectedEndpoint, setSelectedEndpoint] = useState<string>(null);
+	const [refetchSpinning, setRefetchSpinning] = useState<boolean>(false);
+
+	let lastAutoRefetch = 0;
 
 	const match = useRouteMatch(["/home", "/arenas", "/wallet"]);
 
 	useEffect(() => refreshCrews(), [crewAssets, assetsTemplates, crewConfs]);
 	useEffect(() => refreshWeapons(), [weaponAssets, assetsTemplates, weaponConfs]);
 	useEffect(() => setLoading(!((userInfo || userInfo === false) && crews && weapons)), [userInfo, crews, weapons]);
+	useEffect(() => document.addEventListener("visibilitychange", () => handleVisibilityChange(), false), []);
+
+	const handleVisibilityChange = () => {
+		if (!document.hidden) {
+			if (Date.now() - lastAutoRefetch > 5 * 60 * 1e3) {
+				lastAutoRefetch = Date.now();
+				refetchData();
+			}
+		}
+	};
 
 	const setEndpoint = (endpoint: string) => {
 		BLOCKCHAIN.ENDPOINT = endpoint;
@@ -54,12 +67,13 @@ function Game(): JSX.Element {
 		refetchData();
 	};
 
-	const refetchData = () => {
+	const refetchData = async () => {
+		setRefetchSpinning(true);
 		refetchBalances(true);
 
-		fetchUserCrewsWeapons();
+		await fetchUserCrewsWeapons();
 
-		Promise.all([
+		await Promise.all([
 			fetchAssetsTemplates("crew.worlds").then(minions => {
 				setStorageItem<AssetTemplate[]>("crew.worlds.templates", minions, 0);
 				return minions;
@@ -73,12 +87,12 @@ function Game(): JSX.Element {
 			setAssetsTemplates(templates);
 		});
 
-		fetchCrewsConfigurations();
-		fetchWeaponsConfigurations();
-		fetchArenas();
+		await Promise.all([fetchCrewsConfigurations(), await fetchWeaponsConfigurations()]);
+		await fetchArenas();
 
 		refreshCrews();
 		refreshWeapons();
+		setRefetchSpinning(false);
 	};
 
 	const refreshData = () => {
@@ -414,6 +428,13 @@ function Game(): JSX.Element {
 																	Wallet
 																</Link>
 															</div>
+
+															<button
+																className={`refetch ${refetchSpinning ? "spin" : ""}`}
+																onClick={() => refetchData()}
+															>
+																&#10227;
+															</button>
 														</div>
 														<div className="windows">
 															<HomeWindow

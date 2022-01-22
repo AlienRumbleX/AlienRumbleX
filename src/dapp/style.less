@@ -12,6 +12,16 @@
     --color-nine  : hsl(120, 75%, 20%);
 }
 
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 html,
 body {
     font-family    : 'Mouse Memoirs', cursive;
@@ -343,9 +353,10 @@ body {
                         max-width: calc(100% - 28px);
 
                         .controls {
-                            display  : flex;
-                            flex-flow: column;
-                            padding  : 8px 4px;
+                            display        : flex;
+                            flex-flow      : row;
+                            padding        : 8px 4px;
+                            justify-content: center;
 
                             .controls-inner {
                                 align-self: center;
@@ -357,6 +368,27 @@ body {
                                     padding         : 10px 20px;
                                     text-decoration : none;
                                     background-color: var(--color-four);
+                                }
+                            }
+
+                            .refetch {
+                                margin-inline-start: auto;
+                                background-color   : #00000066;
+                                border             : 1px solid #ffffff16;
+                                border-radius      : 100%;
+                                bottom             : 1em;
+                                color              : var(--bright-white);
+                                font-family        : 'Fredoka One', cursive;
+                                font-size          : 18px;
+                                height             : 32px;
+                                width              : 32px;
+                                text-align         : center;
+                                cursor             : pointer;
+                                align-self         : center;
+                                padding            : 0;
+
+                                &.spin {
+                                    animation: spin 0.8s linear infinite both;
                                 }
                             }
                         }

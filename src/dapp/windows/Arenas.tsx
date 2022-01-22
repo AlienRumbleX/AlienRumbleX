@@ -166,7 +166,7 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 													!!queue
 														?.find(e => e.player == ual.activeUser.accountName)
 														?.queues?.find(e => e.arena_name == arena.name) ==
-														(selectedAreaEntry == "No"),
+														(selectedAreaEntry == "Yes"),
 											)
 											?.map(arena => (
 												<div

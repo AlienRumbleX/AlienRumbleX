@@ -25,7 +25,7 @@ function AlienRumbleX(): JSX.Element {
 	};
 
 	useEffect(() => document.addEventListener("visibilitychange", () => handleVisibilityChange(), false), []);
-	useEffect(() => document.addEventListener("scroll", () => handleVisibilityChange(), false), []);
+	useEffect(() => document.addEventListener("scroll", () => forceUpdate(), false), []);
 
 	return (
 		<>
