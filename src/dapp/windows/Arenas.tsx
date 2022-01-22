@@ -10,8 +10,10 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 	const [selectedWeapon, setSelectedWeapon] = useState<Weapon>(null);
 	const [selectedWeaponRarity, setSelectedWeaponRarity] = useState<string>("All");
 	const [selectedWeaponShine, setSelectedWeaponShine] = useState<string>("All");
+	const [selectedWeaponClass, setSelectedWeaponClass] = useState<string>("All");
 	const [selectedMinionRarity, setSelectedMinionRarity] = useState<string>("All");
 	const [selectedMinionShine, setSelectedMinionShine] = useState<string>("All");
+	const [selectedMinionElement, setSelectedMinionElement] = useState<string>("All");
 
 	const enterQueue = async () => {
 		const res: SignTransactionResponse | Error = await ual.activeUser
@@ -124,9 +126,13 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 										<div className="filters">
 											<div className="filter">
 												<span className="name">Rarity</span>
-												<select className="choices" onChange={e => setSelectedMinionRarity(e.target.value)}>
+												<select
+													className="choices"
+													onChange={e => setSelectedMinionRarity(e.target.value)}
+													defaultValue={selectedMinionRarity}
+												>
 													{["All", "Abundant", "Common", "Rare", "Epic", "Legendary", "Mythical"].map(r => (
-														<option value={r} selected={selectedMinionRarity == r} key={`minion-rarity-${r}`}>
+														<option value={r} key={`minion-rarity-${r}`}>
 															{r}
 														</option>
 													))}
@@ -134,9 +140,27 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											</div>
 											<div className="filter">
 												<span className="name">Shine</span>
-												<select className="choices" onChange={e => setSelectedMinionShine(e.target.value)}>
+												<select
+													className="choices"
+													onChange={e => setSelectedMinionShine(e.target.value)}
+													defaultValue={selectedMinionShine}
+												>
 													{["All", "Stone", "Gold", "Stardust", "Antimatter", "XDimension"].map(s => (
-														<option value={s} selected={selectedMinionShine == s} key={`minion-shine-${s}`}>
+														<option value={s} key={`minion-shine-${s}`}>
+															{s}
+														</option>
+													))}
+												</select>
+											</div>
+											<div className="filter">
+												<span className="name">Element</span>
+												<select
+													className="choices"
+													onChange={e => setSelectedMinionElement(e.target.value)}
+													defaultValue={selectedMinionElement}
+												>
+													{["All", "Neutral", "Air", "Fire", "Gem", "Metal", "Nature"].map(s => (
+														<option value={s} key={`minion-element-${s}`}>
 															{s}
 														</option>
 													))}
@@ -149,7 +173,8 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											?.filter(
 												minion =>
 													(selectedMinionRarity == "All" || minion.rarity == selectedMinionRarity) &&
-													(selectedMinionShine == "All" || minion.shine == selectedMinionShine),
+													(selectedMinionShine == "All" || minion.shine == selectedMinionShine) &&
+													(selectedMinionElement == "All" || minion.element == selectedMinionElement),
 											)
 											?.map(minion => (
 												<div
@@ -176,9 +201,13 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 										<div className="filters">
 											<div className="filter">
 												<span className="name">Rarity</span>
-												<select className="choices" onChange={e => setSelectedWeaponRarity(e.target.value)}>
+												<select
+													className="choices"
+													onChange={e => setSelectedWeaponRarity(e.target.value)}
+													defaultValue={selectedWeaponRarity}
+												>
 													{["All", "Abundant", "Common", "Rare", "Epic", "Legendary", "Mythical"].map(r => (
-														<option value={r} selected={selectedWeaponRarity == r} key={`weapon-rarity-${r}`}>
+														<option value={r} key={`weapon-rarity-${r}`}>
 															{r}
 														</option>
 													))}
@@ -186,9 +215,27 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											</div>
 											<div className="filter">
 												<span className="name">Shine</span>
-												<select className="choices" onChange={e => setSelectedWeaponShine(e.target.value)}>
+												<select
+													className="choices"
+													onChange={e => setSelectedWeaponShine(e.target.value)}
+													defaultValue={selectedWeaponShine}
+												>
 													{["All", "Stone", "Gold", "Stardust", "Antimatter", "XDimension"].map(s => (
-														<option value={s} selected={selectedWeaponShine == s} key={`weapon-shine-${s}`}>
+														<option value={s} key={`weapon-shine-${s}`}>
+															{s}
+														</option>
+													))}
+												</select>
+											</div>
+											<div className="filter">
+												<span className="name">Class</span>
+												<select
+													className="choices"
+													onChange={e => setSelectedWeaponClass(e.target.value)}
+													defaultValue={selectedWeaponClass}
+												>
+													{["All", "Neutral", "Air", "Fire", "Gem", "Metal", "Nature"].map(s => (
+														<option value={s} key={`weapon-class-${s}`}>
 															{s}
 														</option>
 													))}
@@ -201,7 +248,8 @@ function ArenasWindow(props: WindowProps): JSX.Element {
 											?.filter(
 												weapon =>
 													(selectedWeaponRarity == "All" || weapon.rarity == selectedWeaponRarity) &&
-													(selectedWeaponShine == "All" || weapon.shine == selectedWeaponShine),
+													(selectedWeaponShine == "All" || weapon.shine == selectedWeaponShine) &&
+													(selectedWeaponClass == "All" || weapon.weapon_class == selectedWeaponClass),
 											)
 											?.map(weapon => (
 												<div
