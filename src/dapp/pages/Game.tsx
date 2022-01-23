@@ -69,13 +69,17 @@ function Game(): JSX.Element {
 	const setAPIEndpoint = (endpoint: string) => {
 		BLOCKCHAIN.API_ENDPOINT = endpoint;
 		setSelectedAPIEndpoint(endpoint);
-		refetchData();
+		if (selectedAtomicEndpoint) {
+			refetchData();
+		}
 	};
 
 	const setAtomicEndpoint = (endpoint: string) => {
 		BLOCKCHAIN.ATOMIC_ENDPOINT = endpoint;
 		setSelectedAtomicEndpoint(endpoint);
-		refetchData();
+		if (selectedAPIEndpoint) {
+			refetchData();
+		}
 	};
 
 	const startTestingEndpoints = () => {
@@ -286,24 +290,39 @@ function Game(): JSX.Element {
 	};
 
 	const fetchUserAssets = async (schema: string, forceRefetch = false): Promise<AssetItem[]> => {
+		const fetchAssetsPage = async (page = 1): Promise<AssetItem[]> => {
+			const response = await axios.get(
+				`https://${BLOCKCHAIN.ATOMIC_ENDPOINT}/atomicassets/v1/assets?collection_name=alien.worlds&schema_name=${schema}&owner=${ual.activeUser.accountName}&page=${page}&limit=300`,
+				{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
+			);
+
+			const assets = [...response.data.data].map<AssetItem>(a => ({
+				asset_id: a.asset_id,
+				collection_name: a.collection.collection_name,
+				schema_name: a.schema.schema_name,
+				template_id: a.template.template_id,
+			}));
+
+			return assets;
+		};
+
 		if (!forceRefetch) {
 			const cache = getStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, null);
 			if (cache) {
 				return cache;
 			}
 		}
+		const assets = [];
 
-		const response = await axios.get(
-			`https://${BLOCKCHAIN.ATOMIC_ENDPOINT}/atomicassets/v1/assets?collection_name=alien.worlds&schema_name=${schema}&owner=${ual.activeUser.accountName}&page=1&limit=500`,
-			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
-		);
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
+			const page = await fetchAssetsPage(Math.floor(assets.length / 300) + 1);
+			assets.push(...page);
 
-		const assets = [...response.data.data].map<AssetItem>(a => ({
-			asset_id: a.asset_id,
-			collection_name: a.collection.collection_name,
-			schema_name: a.schema.schema_name,
-			template_id: a.template.template_id,
-		}));
+			if (page.length < 300) {
+				break;
+			}
+		}
 
 		setStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, assets, 300);
 		return assets;
