@@ -5,7 +5,7 @@ import { Link, useRouteMatch, withRouter } from "react-router-dom";
 import { SignTransactionResponse } from "universal-authenticator-library";
 import BottomBar from "../components/BottomBar";
 import Logo from "../components/Logo";
-import { AppCtx, BLOCKCHAIN, RARITIES, SHINES } from "../constants";
+import { AppCtx, BLOCKCHAIN, ENDPOINTS, RARITIES, SHINES } from "../constants";
 import { AssetItem, AssetTemplate, Crew, CrewConf, GameUser, Weapon, WeaponConf } from "../types";
 import { getStorageItem, setStorageItem } from "../utils";
 import ArenasWindow from "../windows/Arenas";
@@ -40,13 +40,18 @@ function Game(): JSX.Element {
 	const [popupType, setPopupType] = useState<"success" | "error">(null);
 	const [crewAssets, setCrewAssets] = useState<AssetItem[]>(null);
 	const [weaponAssets, setWeaponAssets] = useState<AssetItem[]>(null);
-	const [selectedEndpoint, setSelectedEndpoint] = useState<string>(null);
+	const [selectedAPIEndpoint, setSelectedAPIEndpoint] = useState<string>(null);
+	const [selectedAtomicEndpoint, setSelectedAtomicEndpoint] = useState<string>(null);
 	const [refetchSpinning, setRefetchSpinning] = useState<boolean>(false);
+	const [isTesting, setTesting] = useState<boolean>(true);
+	const [atomicEndpoints, setAtomicEndpoints] = useState<string[]>(null);
+	const [apiEndpoints, setAPIEndpoints] = useState<string[]>(null);
 
 	let lastAutoRefetch = 0;
 
 	const match = useRouteMatch(["/home", "/arenas", "/wallet"]);
 
+	useEffect(() => startTestingEndpoints(), []);
 	useEffect(() => refreshCrews(), [crewAssets, assetsTemplates, crewConfs]);
 	useEffect(() => refreshWeapons(), [weaponAssets, assetsTemplates, weaponConfs]);
 	useEffect(() => setLoading(!((userInfo || userInfo === false) && crews && weapons)), [userInfo, crews, weapons]);
@@ -61,17 +66,69 @@ function Game(): JSX.Element {
 		}
 	};
 
-	const setEndpoint = (endpoint: string) => {
-		BLOCKCHAIN.ENDPOINT = endpoint;
-		setSelectedEndpoint(endpoint);
+	const setAPIEndpoint = (endpoint: string) => {
+		BLOCKCHAIN.API_ENDPOINT = endpoint;
+		setSelectedAPIEndpoint(endpoint);
 		refetchData();
 	};
 
-	const refetchData = async () => {
-		setRefetchSpinning(true);
-		refetchBalances(true);
+	const setAtomicEndpoint = (endpoint: string) => {
+		BLOCKCHAIN.ATOMIC_ENDPOINT = endpoint;
+		setSelectedAtomicEndpoint(endpoint);
+		refetchData();
+	};
 
-		await fetchUserCrewsWeapons();
+	const startTestingEndpoints = () => {
+		testAPIEndpoints();
+	};
+
+	const testAPIEndpoints = async () => {
+		setTesting(true);
+		const [atomicEndpoints, apiEndpoints] = await Promise.all([
+			Promise.all(
+				ENDPOINTS.ATOMIC.map<Promise<string>>(async endpoint =>
+					axios
+						.get(`https://${endpoint}/atomicassets/v1/collections/alien.worlds`, {
+							responseType: "json",
+							headers: { "Content-Type": "application/json;charset=UTF-8" },
+							timeout: 10e3,
+						})
+						.then(() => endpoint)
+						.catch(() => null),
+				),
+			),
+			Promise.all(
+				ENDPOINTS.API.map<Promise<string>>(async endpoint =>
+					axios
+						.post(
+							`https://${endpoint}/v1/chain/get_info`,
+							{},
+							{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" }, timeout: 10e3 },
+						)
+						.then(() => endpoint)
+						.catch(() => null),
+				),
+			),
+		]);
+
+		setAtomicEndpoints(atomicEndpoints.filter(e => !!e).sort());
+		setAPIEndpoints(apiEndpoints.filter(e => !!e).sort());
+		setTesting(false);
+	};
+
+	const chooseRandomEndpoints = async () => {
+		setAtomicEndpoint(_.sample(atomicEndpoints));
+		setAPIEndpoint(_.sample(apiEndpoints));
+	};
+
+	const refetchData = async (userInput = false) => {
+		if (userInput) {
+			setRefetchSpinning(true);
+		}
+
+		refetchBalances();
+
+		await fetchUserCrewsWeapons(userInput);
 
 		await Promise.all([
 			fetchAssetsTemplates("crew.worlds").then(minions => {
@@ -136,14 +193,14 @@ function Game(): JSX.Element {
 		);
 	};
 
-	const refetchBalances = (showLoading = false) => {
-		checkUserInfo(showLoading);
+	const refetchBalances = () => {
+		checkUserInfo();
 		fetchAccountBalance();
 	};
 
 	const refreshQueue = async () => {
 		const response = await axios.post(
-			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			`https://${BLOCKCHAIN.API_ENDPOINT}/v1/chain/get_table_rows`,
 			{ json: true, code: BLOCKCHAIN.DAPP_CONTRACT, scope: BLOCKCHAIN.DAPP_CONTRACT, table: "queues", limit: 1000 },
 			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
 		);
@@ -158,7 +215,7 @@ function Game(): JSX.Element {
 		}
 
 		const response = await axios.get(
-			`https://wax.api.atomicassets.io/atomicassets/v1/templates?collection_name=alien.worlds&schema_name=${schema}&page=1&limit=200&order=desc&sort=created`,
+			`https://${BLOCKCHAIN.ATOMIC_ENDPOINT}/atomicassets/v1/templates?collection_name=alien.worlds&schema_name=${schema}&page=1&limit=200&order=desc&sort=created`,
 			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
 		);
 
@@ -174,11 +231,7 @@ function Game(): JSX.Element {
 		return templates;
 	};
 
-	const fetchCrewsConfigurations = async (showLoading = false) => {
-		if (showLoading) {
-			setLoading(true);
-		}
-
+	const fetchCrewsConfigurations = async () => {
 		const cache = getStorageItem<CrewConf[]>("crewconf", null);
 		if (cache) {
 			setCrewConfs(cache);
@@ -186,7 +239,7 @@ function Game(): JSX.Element {
 		}
 
 		const response = await axios.post(
-			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			`https://${BLOCKCHAIN.API_ENDPOINT}/v1/chain/get_table_rows`,
 			{ json: true, code: BLOCKCHAIN.DAPP_CONTRACT, scope: BLOCKCHAIN.DAPP_CONTRACT, table: "crewconf", limit: 1000 },
 			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
 		);
@@ -195,11 +248,7 @@ function Game(): JSX.Element {
 		setCrewConfs(response.data.rows);
 	};
 
-	const fetchWeaponsConfigurations = async (showLoading = false) => {
-		if (showLoading) {
-			setLoading(true);
-		}
-
+	const fetchWeaponsConfigurations = async () => {
 		const cache = getStorageItem<WeaponConf[]>("weaponconf", null);
 		if (cache) {
 			setWeaponConfs(cache);
@@ -207,7 +256,7 @@ function Game(): JSX.Element {
 		}
 
 		const response = await axios.post(
-			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			`https://${BLOCKCHAIN.API_ENDPOINT}/v1/chain/get_table_rows`,
 			{ json: true, code: BLOCKCHAIN.DAPP_CONTRACT, scope: BLOCKCHAIN.DAPP_CONTRACT, table: "weaponconf", limit: 1000 },
 			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
 		);
@@ -216,13 +265,9 @@ function Game(): JSX.Element {
 		setWeaponConfs(response.data.rows);
 	};
 
-	const fetchArenas = async (showLoading = false) => {
-		if (showLoading) {
-			setLoading(true);
-		}
-
+	const fetchArenas = async () => {
 		const response = await axios.post(
-			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			`https://${BLOCKCHAIN.API_ENDPOINT}/v1/chain/get_table_rows`,
 			{ json: true, code: BLOCKCHAIN.DAPP_CONTRACT, scope: BLOCKCHAIN.DAPP_CONTRACT, table: "arenas", limit: 1000 },
 			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
 		);
@@ -230,23 +275,25 @@ function Game(): JSX.Element {
 		setArenas(response.data.rows);
 	};
 
-	const fetchUserCrewsWeapons = async () => {
-		const minionAssets: AssetItem[] = await fetchUserAssets("crew.worlds");
-		const weaponAssets: AssetItem[] = await fetchUserAssets("arms.worlds");
+	const fetchUserCrewsWeapons = async (forceRefetch = false) => {
+		const minionAssets: AssetItem[] = await fetchUserAssets("crew.worlds", forceRefetch);
+		const weaponAssets: AssetItem[] = await fetchUserAssets("arms.worlds", forceRefetch);
 		const minions = minionAssets.filter(a => a.collection_name == BLOCKCHAIN.AA_COLLECTION && a.schema_name == "crew.worlds");
 		const weapons = weaponAssets.filter(a => a.collection_name == BLOCKCHAIN.AA_COLLECTION && a.schema_name == "arms.worlds");
 		setCrewAssets(minions);
 		setWeaponAssets(weapons);
 	};
 
-	const fetchUserAssets = async (schema: string): Promise<AssetItem[]> => {
-		const cache = getStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, null);
-		if (cache) {
-			return cache;
+	const fetchUserAssets = async (schema: string, forceRefetch = false): Promise<AssetItem[]> => {
+		if (!forceRefetch) {
+			const cache = getStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, null);
+			if (cache) {
+				return cache;
+			}
 		}
 
 		const response = await axios.get(
-			`https://wax.api.atomicassets.io/atomicassets/v1/assets?collection_name=alien.worlds&schema_name=${schema}&owner=${ual.activeUser.accountName}&page=1&limit=500`,
+			`https://${BLOCKCHAIN.ATOMIC_ENDPOINT}/atomicassets/v1/assets?collection_name=alien.worlds&schema_name=${schema}&owner=${ual.activeUser.accountName}&page=1&limit=500`,
 			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
 		);
 
@@ -257,16 +304,13 @@ function Game(): JSX.Element {
 			template_id: a.template.template_id,
 		}));
 
-		setStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, assets, 1800);
+		setStorageItem<AssetItem[]>(`${ual.activeUser.accountName}.${schema}.assets`, assets, 300);
 		return assets;
 	};
 
-	const checkUserInfo = async (showLoading = false) => {
-		if (showLoading) {
-			setLoading(true);
-		}
+	const checkUserInfo = async () => {
 		const response = await axios.post(
-			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_table_rows`,
+			`https://${BLOCKCHAIN.API_ENDPOINT}/v1/chain/get_table_rows`,
 			{
 				json: true,
 				code: BLOCKCHAIN.DAPP_CONTRACT,
@@ -287,7 +331,7 @@ function Game(): JSX.Element {
 
 	const fetchAccountBalance = async () => {
 		const response = await axios.post(
-			`https://${BLOCKCHAIN.ENDPOINT}/v1/chain/get_currency_balance`,
+			`https://${BLOCKCHAIN.API_ENDPOINT}/v1/chain/get_currency_balance`,
 			{ code: BLOCKCHAIN.TOKEN_CONTRACT, account: ual.activeUser.accountName, symbol: BLOCKCHAIN.TOKEN_SYMBOL },
 			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
 		);
@@ -331,7 +375,7 @@ function Game(): JSX.Element {
 		<>
 			<div className="page">
 				<div className="main game">
-					{!selectedEndpoint && (
+					{isTesting && (
 						<>
 							<div className="topbar">
 								<Logo />
@@ -344,24 +388,64 @@ function Game(): JSX.Element {
 							</div>
 
 							<div className="endpoint-select">
-								<span className="rpc-message">Please choose a WAX endpoint to connect to</span>
-								<select defaultValue="none" onChange={e => setEndpoint(e.target.value)}>
-									<option disabled value="none">
-										Select RPC Endpoint
-									</option>
-
-									<option value="api.wax.alohaeos.com">api.wax.alohaeos.com</option>
-									<option value="api.wax.greeneosio.com">api.wax.greeneosio.com</option>
-									<option value="api.waxsweden.org">api.waxsweden.org</option>
-									<option value="wax.cryptolions.io">wax.cryptolions.io</option>
-									<option value="wax.dapplica.io">wax.dapplica.io</option>
-									<option value="wax.eosphere.io">wax.eosphere.io</option>
-									<option value="wax.pink.gg">wax.pink.gg</option>
-								</select>
+								<span className="rpc-message">Testing API endpoints to find the best one</span>
+								<span className="rpc-message">Please wait...</span>
 							</div>
 						</>
 					)}
-					{selectedEndpoint && (
+					{!isTesting && !(selectedAPIEndpoint && selectedAtomicEndpoint) && (
+						<>
+							<div className="topbar">
+								<Logo />
+								<div className="right-side">
+									<span className="account-name">{ual.activeUser.accountName}</span>
+									<button className="button logout-button" onClick={() => ual.logout()}>
+										Logout
+									</button>
+								</div>
+							</div>
+
+							{!(apiEndpoints.length && atomicEndpoints.length) && (
+								<div className="endpoint-select">
+									<span className="rpc-message">No working endpoints found :(</span>
+									<span className="rpc-message">Check your internet connection and refresh to try again</span>
+								</div>
+							)}
+
+							{apiEndpoints.length * atomicEndpoints.length > 0 && (
+								<div className="endpoint-select">
+									<span className="rpc-message">Please choose a WAX endpoint to connect to</span>
+									<select defaultValue="none" onChange={e => setAPIEndpoint(e.target.value)}>
+										<option disabled value="none">
+											Select API Endpoint
+										</option>
+
+										{apiEndpoints.map(endpoint => (
+											<option value={endpoint} key={endpoint}>
+												{endpoint}
+											</option>
+										))}
+									</select>
+									<select defaultValue="none" onChange={e => setAtomicEndpoint(e.target.value)}>
+										<option disabled value="none">
+											Select Atomic Endpoint
+										</option>
+
+										{atomicEndpoints.map(endpoint => (
+											<option value={endpoint} key={endpoint}>
+												{endpoint}
+											</option>
+										))}
+									</select>
+
+									<button className="button random-endpoint-button" onClick={() => chooseRandomEndpoints()}>
+										Choose for me
+									</button>
+								</div>
+							)}
+						</>
+					)}
+					{selectedAPIEndpoint && selectedAtomicEndpoint && (
 						<>
 							{isLoading && <span className="loading-indicator">loading...</span>}
 							{!isLoading && (
@@ -431,7 +515,7 @@ function Game(): JSX.Element {
 
 															<button
 																className={`refetch ${refetchSpinning ? "spin" : ""}`}
-																onClick={() => refetchData()}
+																onClick={() => refetchData(true)}
 															>
 																&#10227;
 															</button>
