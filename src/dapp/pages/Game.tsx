@@ -146,6 +146,7 @@ function Game(): JSX.Element {
 
 		await Promise.all([fetchCrewsConfigurations(), await fetchWeaponsConfigurations()]);
 		await fetchArenas();
+		await refreshQueue();
 
 		refreshCrews();
 		refreshWeapons();
