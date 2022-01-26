@@ -94,4 +94,5 @@ export type Battle = {
 	arena_name: string;
 	players: string[];
 	winner: string;
+	timestamp: string;
 };

@@ -9,6 +9,7 @@ import { AppCtx, BLOCKCHAIN, ENDPOINTS, RARITIES, SHINES } from "../constants";
 import { AssetItem, AssetTemplate, Crew, CrewConf, GameUser, Weapon, WeaponConf } from "../types";
 import { getStorageItem, setStorageItem } from "../utils";
 import ArenasWindow from "../windows/Arenas";
+import BattlesWindow from "../windows/Battles";
 import HomeWindow from "../windows/Home";
 import WalletWindow from "../windows/Wallet";
 
@@ -33,6 +34,7 @@ function Game(): JSX.Element {
 		assetsTemplates,
 		setAssetsTemplates,
 		setQueue,
+		setBattles,
 	} = useContext(AppCtx);
 
 	const [isLoading, setLoading] = useState<boolean>(false);
@@ -49,7 +51,7 @@ function Game(): JSX.Element {
 
 	let lastAutoRefetch = 0;
 
-	const match = useRouteMatch(["/home", "/arenas", "/wallet"]);
+	const match = useRouteMatch(["/home", "/arenas", "/battles", "/wallet"]);
 
 	useEffect(() => startTestingEndpoints(), []);
 	useEffect(() => refreshCrews(), [crewAssets, assetsTemplates, crewConfs]);
@@ -151,6 +153,7 @@ function Game(): JSX.Element {
 		await Promise.all([fetchCrewsConfigurations(), await fetchWeaponsConfigurations()]);
 		await fetchArenas();
 		await refreshQueue();
+		await refreshBattles();
 
 		refreshCrews();
 		refreshWeapons();
@@ -160,6 +163,7 @@ function Game(): JSX.Element {
 	const refreshData = () => {
 		refetchBalances();
 		refreshQueue();
+		refreshBattles();
 	};
 
 	const refreshCrews = () => {
@@ -201,6 +205,16 @@ function Game(): JSX.Element {
 	const refetchBalances = () => {
 		checkUserInfo();
 		fetchAccountBalance();
+	};
+
+	const refreshBattles = async () => {
+		const response = await axios.post(
+			`https://${BLOCKCHAIN.API_ENDPOINT}/v1/chain/get_table_rows`,
+			{ json: true, code: BLOCKCHAIN.DAPP_CONTRACT, scope: BLOCKCHAIN.DAPP_CONTRACT, table: "battles", limit: 1000 },
+			{ responseType: "json", headers: { "Content-Type": "application/json;charset=UTF-8" } },
+		);
+
+		setBattles(response.data.rows.map(b => ({ ...b, timestamp: `${b.timestamp}Z` })));
 	};
 
 	const refreshQueue = async () => {
@@ -528,6 +542,9 @@ function Game(): JSX.Element {
 																<Link className="button" to="/arenas">
 																	Arenas
 																</Link>
+																<Link className="button" to="/battles">
+																	Battles
+																</Link>
 																<Link className="button" to="/wallet">
 																	Wallet
 																</Link>
@@ -550,6 +567,11 @@ function Game(): JSX.Element {
 																refreshData={refreshData}
 																showPopup={showPopup}
 																visible={match?.path == "/arenas"}
+															/>
+															<BattlesWindow
+																refreshData={refreshData}
+																showPopup={showPopup}
+																visible={match?.path == "/battles"}
 															/>
 															<WalletWindow
 																refreshData={refreshData}

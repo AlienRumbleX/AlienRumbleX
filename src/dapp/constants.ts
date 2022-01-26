@@ -1,7 +1,7 @@
 import { Wax } from "@eosdacio/ual-wax";
 import React from "react";
 import { Anchor } from "ual-anchor";
-import { Arena, AssetTemplate, Crew, CrewConf, GameUser, UAL, UserQueueEntry, Weapon, WeaponConf } from "./types";
+import { Arena, AssetTemplate, Battle, Crew, CrewConf, GameUser, UAL, UserQueueEntry, Weapon, WeaponConf } from "./types";
 
 export const ENDPOINTS = {
 	ATOMIC: [
@@ -98,6 +98,9 @@ export interface AppContextInterface {
 
 	queue: UserQueueEntry[];
 	setQueue: (battles: UserQueueEntry[]) => void;
+
+	battles: Battle[];
+	setBattles: (battles: Battle[]) => void;
 }
 
 export const AppCtx = React.createContext<AppContextInterface | null>(null);

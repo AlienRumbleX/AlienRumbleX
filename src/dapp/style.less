@@ -367,7 +367,7 @@ body {
                             .controls-inner {
                                 align-self: center;
                                 display   : flex;
-                                flex-flow : row;
+                                flex-flow : row wrap;
 
                                 a {
                                     margin          : 4px 8px;
@@ -412,6 +412,54 @@ body {
                                 flex-grow: 1;
                                 display  : flex;
                                 flex-flow: column;
+
+                                .battles {
+                                    display  : flex;
+                                    flex-flow: column;
+
+                                    .battle {
+                                        align-items     : center;
+                                        background-color: var(--color-seven);
+                                        border-radius   : 4px;
+                                        box-shadow      : 0 0 4px 0 var(--color-five);
+                                        display         : flex;
+                                        flex-flow       : row wrap;
+                                        justify-content : space-between;
+                                        margin          : 2px 0 6px 0;
+                                        padding         : 8px;
+
+                                        &.participated {
+
+                                            .arena,
+                                            .winner {
+                                                color: var(--color-eight);
+                                            }
+                                        }
+
+                                        &.won {
+
+                                            .arena,
+                                            .winner {
+                                                color: var(--color-three);
+                                            }
+                                        }
+
+                                        .arena,
+                                        .winner,
+                                        .date {
+                                            color     : var(--bright-white);
+                                            font-size : 1.2em;
+                                            padding   : 4px;
+                                            flex-basis: 30%;
+
+                                            &.date {
+                                                font-family: 'Fredoka One', cursive;
+                                                font-size  : 0.8em;
+                                                text-align : end;
+                                            }
+                                        }
+                                    }
+                                }
 
                                 .arenas,
                                 .crews,
@@ -767,6 +815,21 @@ body {
 
                             .windows {
                                 .window {
+                                    .battles {
+                                        .battle {
+
+                                            .arena,
+                                            .winner,
+                                            .date {
+                                                flex-basis: auto;
+                                            }
+
+                                            .date {
+                                                flex-grow : 1;
+                                                flex-basis: 100%;
+                                            }
+                                        }
+                                    }
 
                                     .arenas,
                                     .crews,
